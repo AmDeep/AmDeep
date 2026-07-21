@@ -27,22 +27,7 @@ Passionate about turning data into impactful solutions using machine learning, A
 ---
 
 <!-- AUTO-METRICS-START -->
-### 📊 Auto-Generated Profile Metrics
-*(Updated automatically via GitHub Action)*
-
-**Repository Stats**
-- Public Repositories: 
-- Total Stars: 
-- Total Forks: 
-
-**Activity & Contributions**
-- Organizations: Omdena + others
-- Recent Pushes: Across ML, web, and experimental repositories
-- PRs Opened/Merged: Active in personal and team projects
-
-**Languages**: Python (dominant), JavaScript/TypeScript, Jupyter Notebook
-
-![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
+$(cat metrics.tmp)
 <!-- AUTO-METRICS-END -->
 
 ---
