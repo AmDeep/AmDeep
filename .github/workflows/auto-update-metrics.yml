@@ -14,13 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch Real Metrics from GitHub
+      - name: Fetch Real Metrics
         uses: actions/github-script@v7
         id: metrics
         with:
           script: |
             const repos = await github.paginate(github.rest.repos.listForUser, { username: 'AmDeep', per_page: 100 });
-            
             let stars = 0, forks = 0, size = 0;
             let langs = {};
             let orgs = new Set();
@@ -40,46 +39,39 @@ jobs:
             const topLangs = Object.entries(langs).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([l,c]) => l + " (" + c + ")").join(", ");
             
             return {
+              date: new Date().toISOString().split('T')[0],
               repos: repos.length,
               stars: stars,
               forks: forks,
               size: (size/1024).toFixed(1),
               langs: topLangs,
               orgs: Array.from(orgs).join(", ") || "Omdena",
-              pushes: pushes,
-              date: new Date().toISOString().split('T')[0]
+              pushes: pushes
             };
             
-      - name: Update README with Real Data
+      - name: Update README
         run: |
-          DATE="${{ steps.metrics.outputs.date }}"
-          REPOS="${{ steps.metrics.outputs.repos }}"
-          STARS="${{ steps.metrics.outputs.stars }}"
-          FORKS="${{ steps.metrics.outputs.forks }}"
-          SIZE="${{ steps.metrics.outputs.size }}"
-          LANGS="${{ steps.metrics.outputs.langs }}"
-          ORGS="${{ steps.metrics.outputs.orgs }}"
-          PUSHES="${{ steps.metrics.outputs.pushes }}"
-          
           cat > metrics.tmp << EOF
-          ### 📊 Auto-Generated Profile Metrics (Updated: $DATE)
+          ### 📊 Auto-Generated Profile Metrics (Updated: ${{ steps.metrics.outputs.date }})
 
           **Repository Stats**
-          - Public Repositories: $REPOS
-          - Total Stars: $STARS
-          - Total Forks: $FORKS
-          - Total Code Size: $SIZE MB
+          - Public Repositories: ${{ steps.metrics.outputs.repos }}
+          - Total Stars: ${{ steps.metrics.outputs.stars }}
+          - Total Forks: ${{ steps.metrics.outputs.forks }}
+          - Total Code Size: ${{ steps.metrics.outputs.size }} MB
 
-          **Activity**
-          - Organizations: $ORGS
-          - Recent Pushes: $PUSHES repositories
-          - Top Languages: $LANGS
+          **Activity & Contributions**
+          - Organizations: ${{ steps.metrics.outputs.orgs }}
+          - Recent Pushes: ${{ steps.metrics.outputs.pushes }} repositories
+          - Top Languages: ${{ steps.metrics.outputs.langs }}
           EOF
           
-          sed -i '/AUTO-METRICS-START/,/AUTO-METRICS-END/c\<!-- AUTO-METRICS-START -->\n$(cat metrics.tmp)\n<!-- AUTO-METRICS-END -->' README.md
+          sed -i '/<!-- AUTO-METRICS-START -->/r metrics.tmp' README.md
+          sed -i '/<!-- AUTO-METRICS-END -->/d' README.md
+          echo "Metrics updated!"
         shell: bash
 
-      - name: Commit changes
+      - name: Commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "chore: auto-update metrics"
