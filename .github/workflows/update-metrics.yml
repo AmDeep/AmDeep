@@ -2,7 +2,7 @@ name: Auto Update Profile Metrics
 
 on:
   schedule:
-    - cron: '0 3 * * *'   # Daily at 3 AM UTC
+    - cron: '0 3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
             const fs = require('fs');
             const username = 'AmDeep';
             
-            // Fetch all repositories
             const repos = await github.paginate(github.rest.repos.listForUser, {
               username: username,
               per_page: 100
@@ -42,25 +41,22 @@ jobs:
                 totalForks += repo.forks_count || 0;
                 totalSize += repo.size || 0;
               }
-              if (repo.language) {
-                langCount[repo.language] = (langCount[repo.language] || 0) + 1;
-              }
-              if (repo.owner.type === 'Organization') {
-                orgs.add(repo.owner.login);
-              }
+              if (repo.language) langCount[repo.language] = (langCount[repo.language] || 0) + 1;
+              if (repo.owner.type === 'Organization') orgs.add(repo.owner.login);
               if (repo.pushed_at) recentPushes++;
             });
             
             const topLangs = Object.entries(langCount)
               .sort((a, b) => b[1] - a[1])
               .slice(0, 5)
-              .map(([l, c]) => `${l} (${c})`)
-              .join(', ');
+              .map(([l, c]) => l + " (" + c + ")")
+              .join(", ");
             
             let readme = fs.readFileSync('README.md', 'utf8');
             
+            const date = new Date().toISOString().split('T')[0];
             const metricsBlock = `<!-- AUTO-METRICS-START -->
-### 📊 Auto-Generated Profile Metrics (Updated: ${new Date().toISOString().split('T')[0]})
+### 📊 Auto-Generated Profile Metrics (Updated: ${date})
 
 **Repository Stats**
 - Public Repositories: ${repos.length}
@@ -78,7 +74,6 @@ jobs:
 ![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
 <!-- AUTO-METRICS-END -->`;
             
-            // Replace or append
             if (readme.includes('<!-- AUTO-METRICS-START -->')) {
               readme = readme.replace(/<!-- AUTO-METRICS-START -->[\s\S]*?<!-- AUTO-METRICS-END -->/, metricsBlock);
             } else {
@@ -86,4 +81,4 @@ jobs:
             }
             
             fs.writeFileSync('README.md', readme);
-            console.log('✅ Metrics updated successfully!');
+            console.log('Metrics updated successfully!');
