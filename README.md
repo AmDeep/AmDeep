@@ -17,7 +17,18 @@
 ---
 
 <!-- AUTO-METRICS-START -->
-<!-- AUTO-METRICS-END -->
+### 📊 Auto-Generated Profile Metrics (Updated: )
+
+**Repository Stats**
+- Public Repositories: 
+- Total Stars: 
+- Total Forks: 
+- Total Code Size:  MB
+
+**Activity & Contributions**
+- Organizations: 
+- Recent Pushes:  repositories
+- Top Languages: 
 
 ### 📈 Additional Dynamic Visuals
 ![GitHub Trophies](https://github-profile-trophy.vercel.app/?username=AmDeep&theme=radical&no-frame=true)
