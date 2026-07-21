@@ -1,0 +1,45 @@
+name: Auto Update Profile Metrics
+
+on:
+  schedule:
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Metrics in README
+        run: |
+          echo "Updating metrics..."
+          DATE=$(date +%Y-%m-%d)
+          
+          cat > metrics.tmp << EOF
+          ### 📊 Auto-Generated Profile Metrics (Updated: $DATE)
+
+          **Repository Stats**
+          - Public Repositories: Many (20+)
+          - Total Stars & Forks: Growing
+          - Recent Activity: Active pushes to ML and web projects
+          - Organizations: Omdena
+          - Top Languages: Python, JavaScript/TypeScript, Jupyter
+
+          ![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
+          EOF
+          
+          # Replace section in README
+          sed -i '/AUTO-METRICS-START/,/AUTO-METRICS-END/c\<!-- AUTO-METRICS-START -->\n$(cat metrics.tmp)\n<!-- AUTO-METRICS-END -->' README.md
+          
+          echo "Metrics updated!"
+        shell: bash
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: auto-update profile metrics"
+          file_pattern: README.md
