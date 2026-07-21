@@ -2,7 +2,7 @@ name: Auto Update Profile Metrics
 
 on:
   schedule:
-    - cron: '0 4 * * *'
+    - cron: '0 5 * * *'
   workflow_dispatch:
 
 jobs:
@@ -14,12 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch Real Metrics
+      - name: Generate and Update Metrics
         uses: actions/github-script@v7
-        id: metrics
         with:
           script: |
+            const fs = require('fs');
             const repos = await github.paginate(github.rest.repos.listForUser, { username: 'AmDeep', per_page: 100 });
+            
             let stars = 0, forks = 0, size = 0;
             let langs = {};
             let orgs = new Set();
@@ -36,43 +37,26 @@ jobs:
               if (r.pushed_at) pushes++;
             });
             
-            const topLangs = Object.entries(langs).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([l,c]) => l + " (" + c + ")").join(", ");
+            const topLangs = Object.entries(langs).sort((a,b) => b[1]-a[1]).slice(0,4).map(([l,c]) => l + " (" + c + ")").join(", ");
+            const date = new Date().toISOString().split('T')[0];
             
-            return {
-              date: new Date().toISOString().split('T')[0],
-              repos: repos.length,
-              stars: stars,
-              forks: forks,
-              size: (size/1024).toFixed(1),
-              langs: topLangs,
-              orgs: Array.from(orgs).join(", ") || "Omdena",
-              pushes: pushes
-            };
+            let readme = fs.readFileSync('README.md', 'utf8');
             
-      - name: Update README
-        run: |
-          cat > metrics.tmp << EOF
-          ### 📊 Auto-Generated Profile Metrics (Updated: ${{ steps.metrics.outputs.date }})
+            const block = `<!-- AUTO-METRICS-START -->
+### 📊 Auto-Generated Profile Metrics (Updated: ${date})
 
-          **Repository Stats**
-          - Public Repositories: ${{ steps.metrics.outputs.repos }}
-          - Total Stars: ${{ steps.metrics.outputs.stars }}
-          - Total Forks: ${{ steps.metrics.outputs.forks }}
-          - Total Code Size: ${{ steps.metrics.outputs.size }} MB
+**Repository Stats**
+- Public Repositories: ${repos.length}
+- Total Stars: ${stars}
+- Total Forks: ${forks}
+- Total Code Size: ${(size/1024).toFixed(1)} MB
 
-          **Activity & Contributions**
-          - Organizations: ${{ steps.metrics.outputs.orgs }}
-          - Recent Pushes: ${{ steps.metrics.outputs.pushes }} repositories
-          - Top Languages: ${{ steps.metrics.outputs.langs }}
-          EOF
-          
-          sed -i '/<!-- AUTO-METRICS-START -->/r metrics.tmp' README.md
-          sed -i '/<!-- AUTO-METRICS-END -->/d' README.md
-          echo "Metrics updated!"
-        shell: bash
-
-      - name: Commit
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore: auto-update metrics"
-          file_pattern: README.md
+**Activity & Contributions**
+- Organizations: ${Array.from(orgs).join(', ') || 'Omdena'}
+- Recent Pushes: ${pushes} repositories
+- Top Languages: ${topLangs}
+<!-- AUTO-METRICS-END -->`;
+            
+            readme = readme.replace(/<!-- AUTO-METRICS-START -->[\s\S]*?<!-- AUTO-METRICS-END -->/, block) || readme + block;
+            fs.writeFileSync('README.md', readme);
+            console.log('Metrics updated!');
