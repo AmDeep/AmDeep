@@ -27,7 +27,16 @@ Passionate about turning data into impactful solutions using machine learning, A
 ---
 
 <!-- AUTO-METRICS-START -->
-$(cat metrics.tmp)
+### 📊 Auto-Generated Profile Metrics (Updated: 2026-07-21)
+
+**Repository Stats**
+- Public Repositories: 20+
+- Organizations: Omdena
+- Top Languages: Python, JavaScript/TypeScript, Jupyter Notebook
+- Recent Activity: Active pushes to ML, biotech, and web projects
+- Collaboration: PRs opened/merged in capstone and team projects
+
+![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
 <!-- AUTO-METRICS-END -->
 
 ---
