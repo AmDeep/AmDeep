@@ -1,108 +1,73 @@
-name: Auto-Update GitHub Profile Metrics
+name: Auto Update Profile Metrics
 
 on:
   schedule:
-    - cron: '0 2 * * *'      # Runs daily at 2 AM UTC
-  workflow_dispatch:         # Allows you to run it manually
+    - cron: '0 3 * * *'   # Daily at 3 AM UTC
+  workflow_dispatch:
 
 jobs:
-  update-metrics:
+  update:
     runs-on: ubuntu-latest
     permissions:
-      contents: write       # Required to commit changes to README
+      contents: write
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v4
 
-      - name: Fetch Comprehensive Metrics via GitHub API
+      - name: Generate Comprehensive Metrics
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
             const username = 'AmDeep';
             
-            // Get user info
-            const userData = await github.rest.users.getByUsername({ username });
-            
-            // Get ALL repositories (including private if token allows)
             const repos = await github.paginate(github.rest.repos.listForUser, {
               username: username,
-              per_page: 100,
-              sort: 'updated',
-              direction: 'desc'
+              per_page: 100
             });
             
-            let totalStars = 0;
-            let totalForks = 0;
-            let totalSize = 0;
-            let languageCount = {};
-            let recentActivity = [];
+            let totalStars = 0, totalForks = 0, totalSize = 0;
+            let langCount = {};
             let orgs = new Set();
+            let recentPushes = 0;
             
-            for (const repo of repos) {
+            repos.forEach(repo => {
               if (!repo.fork) {
                 totalStars += repo.stargazers_count || 0;
                 totalForks += repo.forks_count || 0;
                 totalSize += repo.size || 0;
               }
-              
-              // Language stats
-              if (repo.language) {
-                languageCount[repo.language] = (languageCount[repo.language] || 0) + 1;
-              }
-              
-              // Recent pushes
-              if (repo.pushed_at) {
-                recentActivity.push({
-                  repo: repo.name,
-                  pushed: repo.pushed_at,
-                  language: repo.language
-                });
-              }
-              
-              // Organizations
-              if (repo.owner.type === 'Organization') {
-                orgs.add(repo.owner.login);
-              }
-            }
+              if (repo.language) langCount[repo.language] = (langCount[repo.language] || 0) + 1;
+              if (repo.owner.type === 'Organization') orgs.add(repo.owner.login);
+              if (repo.pushed_at) recentPushes++;
+            });
             
-            // Sort languages by usage
-            const topLanguages = Object.entries(languageCount)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 5);
+            const topLangs = Object.entries(langCount)
+              .sort((a,b) => b[1]-a[1])
+              .slice(0,5)
+              .map(([l,c]) => `${l} (${c})`).join(', ');
             
-            // Read current README
-            let readme = fs.readFileSync('./README.md', 'utf8');
+            let readme = fs.readFileSync('README.md', 'utf8');
             
-            // Dynamic metrics block
-            const today = new Date().toISOString().split('T')[0];
-            const metricsSection = `<!-- AUTO-METRICS-START -->
-### 📊 Auto-Generated Profile Metrics (Updated: ${today})
+            const metrics = `<!-- AUTO-METRICS-START -->
+### 📊 Auto-Generated Profile Metrics (Updated: ${new Date().toISOString().split('T')[0]})
 
-- **Total Public Repositories**: ${repos.length}
-- **Total Stars**: ${totalStars}
-- **Total Forks**: ${totalForks}
-- **Total Code Size**: ${(totalSize / 1024).toFixed(1)} MB
-- **Top Languages**: ${topLanguages.map(([lang, count]) => \`\${lang} (\${count})\`).join(', ')}
-- **Organizations**: ${Array.from(orgs).join(', ') || 'Individual + Omdena'}
-- **Recent Activity**: Pushes to ${recentActivity.length} repositories (sorted by latest)
+**Repository Stats**
+- Public Repositories: ${repos.length}
+- Total Stars: ${totalStars}
+- Total Forks: ${totalForks}
+- Total Code Size: ${(totalSize/1024).toFixed(1)} MB
 
-#### Dynamic Cards
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=AmDeep&show_icons=true&theme=radical&include_all_commits=true)
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=AmDeep&layout=compact&theme=radical)
-![Contribution Streak](https://github-readme-streak-stats.herokuapp.com/?user=AmDeep&theme=radical)
+**Activity & Contributions**
+- Organizations: ${Array.from(orgs).join(', ') || 'Omdena + personal'}
+- Recent Pushes: ${recentPushes} repositories
+- PRs & Collaboration: Active in team capstones and personal projects
 
+**Top Languages**: ${topLangs}
+
+![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
 <!-- AUTO-METRICS-END -->`;
             
-            // Replace or append the block
-            if (readme.includes('<!-- AUTO-METRICS-START -->')) {
-              readme = readme.replace(/<!-- AUTO-METRICS-START -->[\s\S]*?<!-- AUTO-METRICS-END -->/, metricsSection);
-            } else {
-              readme += '\n\n' + metricsSection;
-            }
-            
-            fs.writeFileSync('./README.md', readme);
-            console.log('✅ Profile metrics successfully updated!');
+            readme = readme.replace(/<!-- AUTO-METRICS-START -->[\s\S]*?<!-- AUTO-METRICS-END -->/, metrics) || readme + metrics;
+            fs.writeFileSync('README.md', readme);
+            console.log('Metrics updated!');
