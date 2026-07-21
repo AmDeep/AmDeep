@@ -24,6 +24,7 @@
 ---
 
 <!-- AUTO-METRICS-START -->
+$(cat metrics.tmp)
 <!-- AUTO-METRICS-END -->
 
 ---
