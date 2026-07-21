@@ -1,74 +1,64 @@
 # Hi, I'm Amardeep Singh (AmDeep) 👋
 
-![Profile Views](https://komarev.com/ghpvc/?username=AmDeep&color=brightgreen&style=flat-square)
+![Profile Views](https://komarev.com/ghpvc/?username=AmDeep&color=brightgreen&style=for-the-badge)
 
-**ML/AI Engineer | Full-Stack Developer | Toronto, Canada**
+**ML/AI Engineer | Full-Stack Developer** | Toronto, Canada
 
-Passionate about building intelligent systems that solve real-world problems in healthcare, sustainability, biotech, and predictive analytics. Experienced with end-to-end ML pipelines, cloud deployment, and collaborative AI projects.
+Passionate about turning data into impactful solutions using machine learning, AI, and modern web technologies.
 
 ---
 
 ### 🛠️ Technologies & Skills
-- **Languages**: Python, JavaScript/TypeScript, SQL, HTML/CSS
-- **Machine Learning & AI**: Scikit-learn, TensorFlow/Keras, Azure ML, PINNs, NLP, Predictive Modeling, Jupyter
-- **Web & Frontend**: React, Node.js, Streamlit, NGL Viewer (molecular visualization)
-- **Cloud & Tools**: AWS, Azure, Git, Docker basics
-- **Domains**: Predictive Maintenance, Marketing Analytics, Biotech, Sustainability
+- **Languages**: Python, JavaScript/TypeScript, SQL
+- **ML/AI**: Scikit-learn, TensorFlow/Keras, Azure ML, PINNs, NLP, Predictive Modeling
+- **Web/Frontend**: React, Node.js, Streamlit
+- **Tools**: Git, Jupyter, AWS, NGL Viewer, Docker basics
+- **Domains**: Biotech, Sustainability, Healthcare, Predictive Maintenance
 
 ---
 
 ### 🚀 Featured Projects
-
-**1. NASA Turbofan Predictive Maintenance**  
-[ML_Nanodegree_Capstone_Project](https://github.com/AmDeep/ML_Nanodegree_Capstone_Project)  
-![Stars](https://img.shields.io/github/stars/AmDeep/ML_Nanodegree_Capstone_Project?style=flat-square) 
-![Forks](https://img.shields.io/github/forks/AmDeep/ML_Nanodegree_Capstone_Project?style=flat-square)  
-Advanced predictive modeling using NASA Ames data.
-
-**2. Term Deposit Prediction & Marketing Campaign**  
-[CAPSTONE-PROJECT](https://github.com/AmDeep/CAPSTONE-PROJECT)  
-![Stars](https://img.shields.io/github/stars/AmDeep/CAPSTONE-PROJECT?style=flat-square)  
-Classification models for banking direct marketing optimization.
-
-**3. AI LaunchLab Team Project**  
-[AI_LaunchLab_Team3](https://github.com/AmDeep/AI_LaunchLab_Team3)  
-Team-based AI solution development.
-
-**4. Azure ML Nanodegree Capstone**  
-[Capstone_Project3_AzureML_Nanodegree](https://github.com/AmDeep/Capstone_Project3_AzureML_Nanodegree)  
-End-to-end cloud machine learning pipelines.
-
-**5. Metabolic Modelling & Biotech Projects**  
-[Metabolic-Modelling-Project](https://github.com/AmDeep/Metabolic-Modelling-Project) • [HackNation-Mini-AlphaFold](https://github.com/AmDeep/HackNation-Mini-AlphaFold-Small-Scale-Protein-Structure-Drug-Discovery-AI)  
-Computational biology and protein structure AI.
-
-*(More projects available in repositories tab)*
+- **[ML_Nanodegree_Capstone_Project](https://github.com/AmDeep/ML_Nanodegree_Capstone_Project)** — NASA Turbofan Predictive Maintenance
+- **[CAPSTONE-PROJECT](https://github.com/AmDeep/CAPSTONE-PROJECT)** — Term Deposit Marketing Prediction
+- **[AI_LaunchLab_Team3](https://github.com/AmDeep/AI_LaunchLab_Team3)** — Collaborative AI
+- **[Capstone_Project3_AzureML_Nanodegree](https://github.com/AmDeep/Capstone_Project3_AzureML_Nanodegree)** — Azure ML Pipeline
+- **[Metabolic-Modelling-Project](https://github.com/AmDeep/Metabolic-Modelling-Project)** & **[HackNation-Mini-AlphaFold](https://github.com/AmDeep/HackNation-Mini-AlphaFold-Small-Scale-Protein-Structure-Drug-Discovery-AI)** — Biotech AI
 
 ---
 
 <!-- AUTO-METRICS-START -->
 ### 📊 Auto-Generated Profile Metrics
-*(This section updates automatically via GitHub Action)*
+*(Updated automatically via GitHub Action)*
 
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=AmDeep&show_icons=true&theme=radical&hide_border=true&include_all_commits=true)
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=AmDeep&layout=compact&theme=radical&hide_border=true)
-![Contribution Streak](https://github-readme-streak-stats.herokuapp.com/?user=AmDeep&theme=radical&hide_border=true)
+**Repository Stats**
+- Public Repositories: 
+- Total Stars: 
+- Total Forks: 
 
-- **Public Repositories**: 20+
-- **Dominant Languages**: Python, JavaScript/TypeScript, Jupyter Notebook
-- **Organizations**: Omdena and others
-- **Recent Activity**: Active pushes across ML, web, and experimental projects
+**Activity & Contributions**
+- Organizations: Omdena + others
+- Recent Pushes: Across ML, web, and experimental repositories
+- PRs Opened/Merged: Active in personal and team projects
+
+**Languages**: Python (dominant), JavaScript/TypeScript, Jupyter Notebook
+
+![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
 <!-- AUTO-METRICS-END -->
 
 ---
 
-### 🌐 Portfolio & Contact
-- **Live Portfolio**: [https://amdeep.github.io/](https://amdeep.github.io/)
-- **LinkedIn**: [Add your LinkedIn URL here]
-- **Email**: [your.email@example.com]
+### 🌟 Achievements & Goals
+- Udacity Nanodegrees in Machine Learning & Azure ML
+- Hackathon & team project experience
+- Focus on production-ready AI and interdisciplinary applications
 
-**Open to opportunities** in ML Engineering, AI Development, Data Science, and Full-Stack roles in Toronto or remote.
+**Open to opportunities** in ML Engineering, AI Development, and Data Science roles.
 
 ---
 
-*Built with passion for AI & impactful technology • Last updated dynamically*
+### 📫 Connect With Me
+- **Portfolio**: [https://amdeep.github.io/](https://amdeep.github.io/)
+- **LinkedIn**: [Your LinkedIn]
+- **Email**: [your.email@example.com]
+
+*Profile optimized to attract recruiters, HR, and founders • July 2026*
