@@ -56,20 +56,20 @@ jobs:
             
             const date = new Date().toISOString().split('T')[0];
             const metricsBlock = `<!-- AUTO-METRICS-START -->
-### 📊 Auto-Generated Profile Metrics (Updated: ${date})
+### 📊 Auto-Generated Profile Metrics (Updated: ` + date + `)
 
 **Repository Stats**
-- Public Repositories: ${repos.length}
-- Total Stars: ${totalStars}
-- Total Forks: ${totalForks}
-- Total Code Size: ${(totalSize / 1024).toFixed(1)} MB
+- Public Repositories: ` + repos.length + `
+- Total Stars: ` + totalStars + `
+- Total Forks: ` + totalForks + `
+- Total Code Size: ` + (totalSize / 1024).toFixed(1) + ` MB
 
 **Activity & Contributions**
-- Organizations: ${Array.from(orgs).join(', ') || 'Omdena + personal'}
-- Recent Pushes: ${recentPushes} repositories
+- Organizations: ` + (Array.from(orgs).join(', ') || 'Omdena + personal') + `
+- Recent Pushes: ` + recentPushes + ` repositories
 - PRs & Collaboration: Active in team capstones and personal projects
 
-**Top Languages**: ${topLangs}
+**Top Languages**: ` + topLangs + `
 
 ![Profile Views](https://komarev.com/ghpvc/?username=AmDeep)
 <!-- AUTO-METRICS-END -->`;
