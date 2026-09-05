@@ -25,16 +25,14 @@
 
 ## 📊 Real-Time Profile Metrics
 
-<!-- AUTO-METRICS-START -->
-
 ### 📈 GitHub Analytics
-![GitHub Stats](https://github-readme-stats.vercel.app/api?username=AmDeep&show_icons=true&theme=radical&hide_border=true&include_all_commits=true&count_private=true)
+![GitHub Stats](https://github-readme-stats.vercel.app/api?username=AmDeep&show_icons=true&theme=radical&count_private=true&include_all_commits=true)
 
 ### 🏆 Most Used Languages
-![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=AmDeep&layout=compact&theme=radical&hide_border=true&card_width=445)
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=AmDeep&theme=radical&layout=compact&langs_count=8)
 
-### 🎖️ GitHub Achievements
-![GitHub Trophies](https://github-profile-trophy.vercel.app/?username=AmDeep&theme=radical&no-frame=true&column=4)
+### 🎖️ Achievements & Trophies
+![GitHub Trophies](https://github-profile-trophy.vercel.app/?username=AmDeep&theme=radical&column=6&margin-w=15)
 
 ### 📊 Repository Distribution
 | Category | Focus Areas |
@@ -44,8 +42,6 @@
 | 🚀 **Full-Stack** | Web apps, APIs, Frontend development |
 | 📈 **Data Science** | Analytics, Fuzzy Logic, Feature Engineering |
 | 🛠️ **Tools & Frameworks** | LangChain, LangGraph, Azure ML |
-
-<!-- AUTO-METRICS-END -->
 
 ---
 
