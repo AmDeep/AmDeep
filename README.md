@@ -28,7 +28,7 @@ Toronto, Canada · AI systems · physical AI · embedded robotics · full-stack 
 <!-- PROFILE-METRICS-START -->
 ![AmDeep GitHub activity dashboard](assets/metrics.svg)
 
-**Current verified snapshot:** 112 owned public repositories · 276 contributions · 186 commit contributions · 1 pull request contribution · 1-day current streak · 4-day longest streak. The scheduled workflow also records authored pull requests and GitHub code-frequency line additions/deletions when those repository statistics are available.
+**Current verified snapshot:** 112 owned public repositories · 277 contributions · 187 commit contributions · 1 pull request contributions · 8 authored pull requests · 0 lines added / 0 deleted in GitHub code-frequency history · 6-day longest streak · 1-day current streak.
 <!-- PROFILE-METRICS-END -->
 
 The dashboard is generated from GitHub data by [`.github/workflows/auto-update-metrics.yml`](.github/workflows/auto-update-metrics.yml). It avoids relying on third-party stats-card services that can fail to render or expose misleading private-repository claims.
