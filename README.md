@@ -33,6 +33,42 @@ Toronto, Canada · AI systems · physical AI · embedded robotics · full-stack 
 
 The dashboard is generated from GitHub data by [`.github/workflows/auto-update-metrics.yml`](.github/workflows/auto-update-metrics.yml). It avoids relying on third-party stats-card services that can fail to render or expose misleading private-repository claims.
 
+![AI engineering ecosystem](assets/ai-ecosystem.svg)
+
+<details>
+<summary><strong>Open the recruiter view: what kind of work is here?</strong></summary>
+
+```mermaid
+flowchart LR
+	D[Data and sensors] --> M[Models and ML]
+	M --> A[Agents and tools]
+	A --> P[Products and APIs]
+	M --> R[Robotics and edge]
+	R --> O[Operators and outcomes]
+	P --> O
+```
+
+The profile is intentionally broad: agentic AI and LLM applications sit alongside computer vision, prediction, control, embedded systems, ROS 2, Jetson observability, and full-stack delivery. The common thread is turning technical components into an inspectable workflow with an input, a decision, and an output.
+</details>
+
+<details>
+<summary><strong>Activity, stars, streaks, and code-volume caveat</strong></summary>
+
+| Metric | Current evidence |
+| --- | ---: |
+| Contributions | 277 |
+| Commit contributions | 187 |
+| Pull request contributions | 1 |
+| Authored pull requests | 8 |
+| Longest contribution streak | 6 days |
+| Current contribution streak | 1 day |
+| Owned public repositories | 112 |
+| Repository stars | 13 |
+| Repository forks | 6 |
+
+**Lines written:** GitHub does not expose a reliable all-time “lines written” total for a profile. The automation therefore does not present a fabricated LOC number; it records code-frequency data only when GitHub returns it for a repository.
+</details>
+
 ## Featured systems
 
 ### Physical AI and robotics
@@ -49,6 +85,14 @@ The dashboard is generated from GitHub data by [`.github/workflows/auto-update-m
 - [AI_Chatbot](https://github.com/AmDeep/AI_Chatbot) · conversational AI application work.
 - [Face-Track-Detect-Extract](https://github.com/AmDeep/Face-Track-Detect-Extract) · computer vision and multi-target tracking.
 
+### Agentic AI and application engineering
+
+- [AESIR](https://github.com/AmDeep/AESIR) · full-stack AI agent platform and application surface.
+- [AI_Chatbot](https://github.com/AmDeep/AI_Chatbot) · conversational AI application work.
+- [Chatbottests-Aesir-LLM](https://github.com/AmDeep/Chatbottests-Aesir-LLM) · LLM testing and evaluation experiments.
+- [LLM-Chatbot](https://github.com/AmDeep/LLM-Chatbot) · LLM-powered conversational workflow.
+- [MCP-Servers](https://github.com/AmDeep/MCP-Servers) · tool/context integration patterns for AI systems.
+
 ### ML, data, and control
 
 - [Air_Quality_Predictor](https://github.com/AmDeep/Air_Quality_Predictor) · predictive modeling and environmental data.
@@ -61,6 +105,23 @@ The dashboard is generated from GitHub data by [`.github/workflows/auto-update-m
 **AI/ML:** PyTorch · TensorFlow · scikit-learn · LangChain · LangGraph · vLLM
 **Robotics/edge:** ROS 2 · Isaac ROS boundaries · Jetson telemetry · TensorRT/Triton contracts · ONNX Runtime · OpenCV · MQTT
 **Delivery:** GitHub Actions · Docker · Azure · AWS · Prometheus-style observability · replayable test fixtures
+
+## Topics and industries represented
+
+| Topic cluster | Repository evidence | Industry signal |
+| --- | --- | --- |
+| **Agentic AI / LLMs** | AESIR, AI_Chatbot, LLM projects, LangChain/LangGraph work | AI platforms, enterprise automation, developer tools |
+| **Computer vision** | Face tracking, distance detection, pointer control, vision inspection | robotics, accessibility, industrial inspection, human-computer interaction |
+| **Physical AI / robotics** | ROS 2, Isaac ROS boundaries, IMU, manipulation, fleet telemetry | autonomous systems, warehouse robotics, edge AI, industrial automation |
+| **Environmental and scientific ML** | air quality, biofuel yield, prediction notebooks | climate tech, energy, research, sustainability |
+| **Process control** | MATLAB fuzzy logic, refinery wastewater, advanced process control | chemical/process engineering, manufacturing, industrial analytics |
+| **Cloud and MLOps** | Azure ML capstone, APIs, CI workflows, metrics automation | production ML, cloud platforms, platform engineering |
+
+<details>
+<summary><strong>How the topic map was derived</strong></summary>
+
+The map combines repository names, GitHub descriptions, declared primary languages, README content, and the five newer Physical AI repositories. GitHub topic metadata is sparse on several older repositories, so the profile avoids claiming a topic where the repository evidence is not clear.
+</details>
 
 ## Engineering principles
 

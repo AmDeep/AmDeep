@@ -70,7 +70,7 @@ jobs:
             fs.mkdirSync('assets', { recursive: true });
             fs.writeFileSync('assets/metrics.svg', svg);
             let readme = fs.readFileSync('README.md', 'utf8');
-            const block = `<!-- PROFILE-METRICS-START -->\n![AmDeep GitHub activity dashboard](assets/metrics.svg)\n\n**Current verified snapshot:** ${metrics.repos} owned public repositories · ${metrics.contributions} contributions · ${metrics.commits} commit contributions · ${metrics.pullRequests} pull request contributions · ${metrics.authoredPullRequests} authored pull requests · ${metrics.linesAdded} lines added / ${metrics.linesDeleted} deleted in GitHub code-frequency history · ${metrics.longestStreak}-day longest streak · ${metrics.currentStreak}-day current streak.\n<!-- PROFILE-METRICS-END -->`;
+            const block = `<!-- PROFILE-METRICS-START -->\n![AmDeep GitHub activity dashboard](assets/metrics.svg)\n\n**Current verified snapshot:** ${metrics.repos} owned public repositories · ${metrics.stars} repository stars · ${metrics.contributions} contributions · ${metrics.commits} commit contributions · ${metrics.pullRequests} pull request contributions · ${metrics.authoredPullRequests} authored pull requests · ${metrics.longestStreak}-day longest streak · ${metrics.currentStreak}-day current streak.\n\n**Lines written:** GitHub code-frequency data is recorded only when available; no aggregate LOC claim is fabricated.\n<!-- PROFILE-METRICS-END -->`;
             readme = readme.replace(/<!-- PROFILE-METRICS-START -->[\s\S]*?<!-- PROFILE-METRICS-END -->/, block);
             fs.writeFileSync('README.md', readme);
             core.setOutput('metrics', JSON.stringify(metrics));
