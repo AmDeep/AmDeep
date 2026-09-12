@@ -1,62 +1,84 @@
-name: Auto Update Profile Metrics
+name: Refresh Profile Metrics
 
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: '17 5 * * *'
   workflow_dispatch:
 
-jobs:
-  update:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
+permissions:
+  contents: write
 
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Generate and Update Metrics
+      - name: Generate repository-owned metrics dashboard
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const repos = await github.paginate(github.rest.repos.listForUser, { username: 'AmDeep', per_page: 100 });
-            
-            let stars = 0, forks = 0, size = 0;
-            let langs = {};
-            let orgs = new Set();
-            let pushes = 0;
-            
-            repos.forEach(r => {
-              if (!r.fork) {
-                stars += r.stargazers_count || 0;
-                forks += r.forks_count || 0;
-                size += r.size || 0;
+            const user = 'AmDeep';
+            const repos = await github.paginate(github.rest.repos.listForUser, { username: user, per_page: 100, type: 'owner' });
+            const owned = repos.filter(repo => !repo.fork);
+            const languageCounts = {};
+            owned.forEach(repo => { if (repo.language) languageCounts[repo.language] = (languageCounts[repo.language] || 0) + 1; });
+            const topLanguages = Object.entries(languageCounts).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            const query = `query($login: String!) { user(login: $login) { contributionsCollection { totalCommitContributions totalPullRequestContributions totalIssueContributions contributionCalendar { totalContributions weeks { contributionDays { date contributionCount } } } } } }`;
+            const graph = await github.graphql(query, { login: user });
+            const contributions = graph.user.contributionsCollection;
+            const authoredPrs = await github.rest.search.issuesAndPullRequests({ q: `author:${user} type:pr`, per_page: 1 });
+            let linesAdded = 0, linesDeleted = 0;
+            for (const repo of owned) {
+              try {
+                const frequency = await github.rest.repos.getCodeFrequency({ owner: user, repo: repo.name });
+                for (const [, additions, deletions] of frequency.data) { linesAdded += additions || 0; linesDeleted += Math.abs(deletions || 0); }
+              } catch (error) {
+                core.warning(`Code frequency unavailable for ${repo.name}: ${error.message}`);
               }
-              if (r.language) langs[r.language] = (langs[r.language] || 0) + 1;
-              if (r.owner.type === 'Organization') orgs.add(r.owner.login);
-              if (r.pushed_at) pushes++;
-            });
-            
-            const topLangs = Object.entries(langs).sort((a,b) => b[1]-a[1]).slice(0,4).map(([l,c]) => l + " (" + c + ")").join(", ");
-            const date = new Date().toISOString().split('T')[0];
-            
+            }
+            const days = contributions.contributionCalendar.weeks.flatMap(week => week.contributionDays).sort((a, b) => a.date.localeCompare(b.date));
+            let current = 0, run = 0, longest = 0;
+            for (const day of days) { if (day.contributionCount > 0) { run += 1; longest = Math.max(longest, run); } else run = 0; }
+            for (const day of [...days].reverse()) { if (day.contributionCount > 0) current += 1; else break; }
+            const metrics = {
+              repos: owned.length,
+              stars: owned.reduce((sum, repo) => sum + (repo.stargazers_count || 0), 0),
+              forks: owned.reduce((sum, repo) => sum + (repo.forks_count || 0), 0),
+              contributions: contributions.contributionCalendar.totalContributions,
+              commits: contributions.totalCommitContributions,
+              pullRequests: contributions.totalPullRequestContributions,
+              authoredPullRequests: authoredPrs.data.total_count,
+              linesAdded,
+              linesDeleted,
+              issues: contributions.totalIssueContributions,
+              currentStreak: current,
+              longestStreak: longest,
+              topLanguages,
+              updated: new Date().toISOString().slice(0, 10)
+            };
+            const colors = ['#22d3ee', '#fbbf24', '#a78bfa', '#60a5fa', '#f472b6'];
+            const maxLanguageCount = Math.max(...topLanguages.map(item => item[1]), 1);
+            const languageRows = topLanguages.map(([name, count], index) => {
+              const y = 330 + index * 34;
+              const width = Math.round(260 * count / maxLanguageCount);
+              return `<text x="52" y="${y}" font-family="Segoe UI,Arial" font-size="14" fill="#cbd5e1">${name}</text><rect x="190" y="${y - 14}" width="${width}" height="16" rx="8" fill="${colors[index]}"/><text x="470" y="${y}" font-family="Segoe UI,Arial" font-size="14" fill="#cbd5e1">${count} repos</text>`;
+            }).join('');
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="470" viewBox="0 0 1200 470"><rect width="1200" height="470" rx="20" fill="#101827"/><rect x="1" y="1" width="1198" height="468" rx="20" fill="none" stroke="#334155"/><text x="52" y="58" font-family="Segoe UI,Arial" font-size="27" font-weight="700" fill="#f8fafc">AmDeep / engineering activity</text><text x="52" y="86" font-family="Segoe UI,Arial" font-size="15" fill="#94a3b8">Verified GitHub data · refreshed ${metrics.updated}</text><g font-family="Segoe UI,Arial"><rect x="52" y="120" width="170" height="92" rx="14" fill="#172554"/><text x="72" y="151" font-size="14" fill="#93c5fd">PUBLIC REPOS</text><text x="72" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.repos}</text><rect x="242" y="120" width="170" height="92" rx="14" fill="#172554"/><text x="262" y="151" font-size="14" fill="#93c5fd">CONTRIBUTIONS</text><text x="262" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.contributions}</text><rect x="432" y="120" width="170" height="92" rx="14" fill="#172554"/><text x="452" y="151" font-size="14" fill="#93c5fd">COMMITS</text><text x="452" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.commits}</text><rect x="622" y="120" width="170" height="92" rx="14" fill="#172554"/><text x="642" y="151" font-size="14" fill="#93c5fd">PULL REQUESTS</text><text x="642" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.pullRequests}</text><rect x="812" y="120" width="170" height="92" rx="14" fill="#172554"/><text x="832" y="151" font-size="14" fill="#93c5fd">LONGEST STREAK</text><text x="832" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.longestStreak} days</text><rect x="1002" y="120" width="146" height="92" rx="14" fill="#172554"/><text x="1022" y="151" font-size="14" fill="#93c5fd">CURRENT</text><text x="1022" y="190" font-size="31" font-weight="700" fill="#dbeafe">${metrics.currentStreak} day</text></g><text x="52" y="270" font-family="Segoe UI,Arial" font-size="17" font-weight="700" fill="#f8fafc">Repository language footprint</text>${languageRows}</svg>`;
+            fs.mkdirSync('assets', { recursive: true });
+            fs.writeFileSync('assets/metrics.svg', svg);
             let readme = fs.readFileSync('README.md', 'utf8');
-            
-            const block = `<!-- AUTO-METRICS-START -->
-### 📊 Auto-Generated Profile Metrics (Updated: ${date})
-
-**Repository Stats**
-- Public Repositories: ${repos.length}
-- Total Stars: ${stars}
-- Total Forks: ${forks}
-- Total Code Size: ${(size/1024).toFixed(1)} MB
-
-**Activity & Contributions**
-- Organizations: ${Array.from(orgs).join(', ') || 'Omdena'}
-- Recent Pushes: ${pushes} repositories
-- Top Languages: ${topLangs}
-<!-- AUTO-METRICS-END -->`;
-            
-            readme = readme.replace(/<!-- AUTO-METRICS-START -->[\s\S]*?<!-- AUTO-METRICS-END -->/, block) || readme + block;
+            const block = `<!-- PROFILE-METRICS-START -->\n![AmDeep GitHub activity dashboard](assets/metrics.svg)\n\n**Current verified snapshot:** ${metrics.repos} owned public repositories · ${metrics.contributions} contributions · ${metrics.commits} commit contributions · ${metrics.pullRequests} pull request contributions · ${metrics.authoredPullRequests} authored pull requests · ${metrics.linesAdded} lines added / ${metrics.linesDeleted} deleted in GitHub code-frequency history · ${metrics.longestStreak}-day longest streak · ${metrics.currentStreak}-day current streak.\n<!-- PROFILE-METRICS-END -->`;
+            readme = readme.replace(/<!-- PROFILE-METRICS-START -->[\s\S]*?<!-- PROFILE-METRICS-END -->/, block);
             fs.writeFileSync('README.md', readme);
-            console.log('Metrics updated!');
+            core.setOutput('metrics', JSON.stringify(metrics));
+
+      - name: Commit refreshed metrics
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md assets/metrics.svg
+          git diff --cached --quiet || git commit -m "chore: refresh profile metrics"
+          git push
