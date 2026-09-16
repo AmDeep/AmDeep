@@ -28,7 +28,7 @@ Toronto, Canada · AI systems · physical AI · embedded robotics · full-stack 
 <!-- PROFILE-METRICS-START -->
 ![AmDeep GitHub activity dashboard](assets/metrics.svg)
 
-**Current verified snapshot:** 112 owned public repositories · 13 repository stars · 281 contributions · 191 commit contributions · 1 pull request contributions · 8 authored pull requests · 6-day longest streak · 2-day current streak.
+**Current verified snapshot:** 112 owned public repositories · 13 repository stars · 282 contributions · 192 commit contributions · 1 pull request contributions · 8 authored pull requests · 6-day longest streak · 0-day current streak.
 
 **Lines written:** GitHub code-frequency data is recorded only when available; no aggregate LOC claim is fabricated.
 <!-- PROFILE-METRICS-END -->
