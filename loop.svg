@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 330" role="img" aria-labelledby="t d">
+  <title id="t">Engineering loop</title>
+  <desc id="d">Five stages in a loop: data, models, product, validation, and edge systems, with evaluation feeding back into every earlier stage.</desc>
+  <style>
+    .sans{font-family:'Segoe UI','Helvetica Neue',Arial,system-ui,sans-serif}
+    .flow{stroke-dasharray:6 10;animation:dash 1.6s linear infinite}
+    @keyframes dash{to{stroke-dashoffset:-32}}
+    @media (prefers-reduced-motion:reduce){.flow{animation:none}}
+  </style>
+  <rect width="1200" height="330" fill="#0E1621"/>
+  <g fill="none" stroke="#5CC8C0" stroke-width="2.5" stroke-linecap="round">
+    <line class="flow" x1="238" y1="120" x2="262" y2="120"/><line class="flow" x1="438" y1="120" x2="462" y2="120"/>
+    <line class="flow" x1="638" y1="120" x2="662" y2="120"/><line class="flow" x1="838" y1="120" x2="862" y2="120"/>
+  </g>
+  <path class="flow" d="M960 190 V268 H140 V190" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M132 198 L140 186 L148 198" fill="none" stroke="#FFB347" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="550" y="296" class="sans" font-size="16" fill="#FFB347" text-anchor="middle">evaluation and observability feed every earlier stage</text>
+  <g class="sans">
+    <rect x="40" y="50" width="198" height="140" rx="8" fill="#16263A" stroke="#2C4058"/><text x="60" y="88" font-size="20" font-weight="600" fill="#E8EEF4">Data</text><text x="60" y="118" font-size="15" fill="#B8C7D6">Ingestion, retrieval</text><text x="60" y="140" font-size="15" fill="#B8C7D6">pipelines, indexes</text>
+    <rect x="262" y="50" width="176" height="140" rx="8" fill="#16263A" stroke="#2C4058"/><text x="282" y="88" font-size="20" font-weight="600" fill="#E8EEF4">Models</text><text x="282" y="118" font-size="15" fill="#B8C7D6">PyTorch, vLLM,</text><text x="282" y="140" font-size="15" fill="#B8C7D6">agent workflows</text>
+    <rect x="462" y="50" width="176" height="140" rx="8" fill="#16263A" stroke="#2C4058"/><text x="482" y="88" font-size="20" font-weight="600" fill="#E8EEF4">Product</text><text x="482" y="118" font-size="15" fill="#B8C7D6">Serving, APIs,</text><text x="482" y="140" font-size="15" fill="#B8C7D6">usable interfaces</text>
+    <rect x="662" y="50" width="176" height="140" rx="8" fill="#16263A" stroke="#2C4058"/><text x="682" y="88" font-size="20" font-weight="600" fill="#E8EEF4">Validation</text><text x="682" y="118" font-size="15" fill="#B8C7D6">Contracts, limits,</text><text x="682" y="140" font-size="15" fill="#B8C7D6">approval boundaries</text>
+    <rect x="862" y="50" width="298" height="140" rx="8" fill="#16263A" stroke="#2C4058"/><text x="882" y="88" font-size="20" font-weight="600" fill="#E8EEF4">Edge and robots</text><text x="882" y="118" font-size="15" fill="#B8C7D6">ROS 2, OpenCV, ONNX Runtime,</text><text x="882" y="140" font-size="15" fill="#B8C7D6">TensorRT/Triton, MQTT</text>
+  </g>
+</svg>
