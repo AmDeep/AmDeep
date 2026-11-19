@@ -1,22 +1,45 @@
-# Install / Update this profile
+# Deploy the high-impact animated profile
 
-1. **Backup** (optional): clone your current `AmDeep/AmDeep` repo.
-2. Unzip this package **over** a fresh clone (or existing) of `https://github.com/AmDeep/AmDeep`.
-   - It replaces `README.md`, adds/updates `scripts/build_profile.py`, workflows, and the `profile/` folder.
-3. Delete any leftover root-level `*.svg` files that are now inside `profile/` (optional cleanup).
-4. Commit and push to `main`:
+This package combines the strongest patterns from the best GitHub profiles in 2026:
+
+- Animated typing identity
+- Live stats + streak + activity graph
+- Contribution snake (light/dark)
+- Custom data-driven animated SVGs (hero, marquee, project cards, universe plot, insights, skyline, toolbox)
+- Consistent premium dark teal theme
+- Self-updating via GitHub Actions
+
+### Deployment steps
+
+1. **Push everything**
    ```bash
    git add .
-   git commit -m "feat: enhanced animated + data-driven profile"
-   git push
+   git commit -m "feat: cinematic animated profile with live metrics and data SVGs"
+   git push origin main
    ```
-5. **Repo Settings → Actions → General → Workflow permissions** → enable **Read and write permissions**.
-6. Go to the **Actions** tab:
-   - Run **Refresh profile** (generates live SVGs into `profile/`).
-   - Run **Generate contribution snake** (creates the snake on the `output` branch).
-7. Wait ~1–2 minutes, refresh your profile page. The data-driven cards, universe plot, insights, skyline, and snake will populate.
 
-### Notes
-- All custom SVGs are regenerated from public GitHub data (no private tokens required beyond the default GITHUB_TOKEN).
-- External widgets (stats, streak, typing SVG, skill icons, visitor counter) update in real time.
-- The color palette matches the existing teal/amber dark theme (`#5CC8C0`, `#0E1621`, etc.).
+2. **Enable Actions write access**
+   - Repo → Settings → Actions → General
+   - Workflow permissions → **Read and write permissions**
+   - Save
+
+3. **Run the workflows (required once)**
+   - Actions → **Refresh profile** → Run workflow  
+     (generates/updates all custom SVGs in `profile/`)
+   - Actions → **Generate contribution snake** → Run workflow  
+     (creates the snake on the `output` branch)
+
+4. Hard-refresh your profile page (Ctrl+Shift+R / Cmd+Shift+R).
+
+### What you should see after the workflows finish
+- Fully animated hero banner
+- Scrolling tech marquee
+- Typing identity lines
+- Live GitHub stats, languages, streak, activity graph
+- Contribution snake
+- Project cards that link to your featured work
+- Repository universe visualization
+- Insights, activity timeline, and contribution skyline
+- Toolbox + skill icons
+
+Everything updates automatically after the initial run.
