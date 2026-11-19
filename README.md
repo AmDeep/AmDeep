@@ -1,18 +1,15 @@
 <div align="center">
 
-<!-- ==================== HERO ==================== -->
 <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/hero.svg" alt="Amardeep Singh — Applied AI · Retrieval · Robotics · Production Systems" width="100%" />
 
 <br/>
 
-<!-- ==================== TYPING IDENTITY ==================== -->
 <a href="https://github.com/AmDeep">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&duration=2600&pause=1400&color=5CC8C0&center=true&vCenter=true&width=780&height=90&lines=ML+%2F+AI+Engineer+%7C+Toronto;Physical+AI+%C2%B7+Agents+%C2%B7+Retrieval+%C2%B7+Edge;Building+systems+that+turn+models+into+action" alt="Animated typing identity" />
 </a>
 
 <br/>
 
-<!-- Navigation -->
 <p>
   <a href="#about">About</a> ·
   <a href="#selected-work">Selected Work</a> ·
@@ -23,7 +20,6 @@
   <a href="https://github.com/AmDeep?tab=repositories">All Repositories</a>
 </p>
 
-<!-- Badges -->
 <p>
   <a href="https://github.com/AmDeep"><img src="https://img.shields.io/badge/GitHub-AmDeep-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
   <a href="https://www.omdena.com/"><img src="https://img.shields.io/badge/Omdena-Collaborator-00C2A8?style=for-the-badge" alt="Omdena"/></a>
@@ -31,7 +27,6 @@
   <img src="https://komarev.com/ghpvc/?username=AmDeep&style=for-the-badge&color=5CC8C0&label=Profile+Views" alt="Profile views"/>
 </p>
 
-<!-- Scrolling tech marquee -->
 <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/marquee.svg" alt="Tools and topics across repositories" width="100%" />
 
 </div>
@@ -72,12 +67,12 @@ I work across the full path: data contracts → inference → agent workflows �
   <tr>
     <td width="50%">
       <a href="https://github.com/AmDeep/AIAgents">
-        <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/card-AIAgents.svg" alt="AIAgents — runnable reference patterns for reliable agent systems"/>
+        <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/card-AIAgents.svg" alt="AIAgents"/>
       </a>
     </td>
     <td width="50%">
       <a href="https://github.com/AmDeep/RAGSystemLabs">
-        <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/card-RAGSystemLabs.svg" alt="RAGSystemLabs — hands-on labs for retrieval-augmented generation"/>
+        <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/card-RAGSystemLabs.svg" alt="RAGSystemLabs"/>
       </a>
     </td>
   </tr>
@@ -115,23 +110,19 @@ I work across the full path: data contracts → inference → agent workflows �
 
 <div align="center">
 
-<!-- Stats + Languages -->
 <img height="168" src="https://github-readme-stats.vercel.app/api?username=AmDeep&show_icons=true&theme=tokyonight&hide_border=true&count_private=true&include_all_commits=true&bg_color=0E1621&title_color=5CC8C0&icon_color=5CC8C0&text_color=B8C7D6&ring_color=5CC8C0" alt="GitHub Stats"/>
 <img height="168" src="https://github-readme-stats.vercel.app/api/top-langs/?username=AmDeep&layout=compact&theme=tokyonight&hide_border=true&bg_color=0E1621&title_color=5CC8C0&text_color=B8C7D6&langs_count=8" alt="Top Languages"/>
 
 <br/><br/>
 
-<!-- Streak -->
 <img src="https://streak-stats.demolab.com?user=AmDeep&theme=tokyonight&hide_border=true&background=0E1621&ring=5CC8C0&fire=FFB347&currStreakLabel=5CC8C0&sideLabels=B8C7D6&dates=8FA3B8" alt="GitHub Streak" height="160"/>
 
 <br/><br/>
 
-<!-- Activity Graph -->
 <img src="https://github-readme-activity-graph.vercel.app/graph?username=AmDeep&theme=tokyo-night&bg_color=0E1621&color=5CC8C0&line=5CC8C0&point=FFB347&area=true&hide_border=true&custom_title=Contribution%20Activity" alt="Contribution Activity Graph" width="100%"/>
 
 <br/><br/>
 
-<!-- Contribution Snake -->
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/AmDeep/AmDeep/output/github-snake-dark.svg"/>
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/AmDeep/AmDeep/output/github-snake.svg"/>
@@ -153,14 +144,13 @@ I work across the full path: data contracts → inference → agent workflows �
 ## Insights
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/insights.svg" alt="Profile insights — counts, language volume and topic areas" width="100%"/>
-<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/activity.svg" alt="Repositories created per year and recent activity" width="100%"/>
-<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/skyline.svg" alt="Contribution skyline — isometric view of the last year" width="100%"/>
+<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/insights.svg" alt="Profile insights" width="100%"/>
+<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/activity.svg" alt="Activity over time" width="100%"/>
+<img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/skyline.svg" alt="Contribution skyline" width="100%"/>
 </div>
 
 <sub>
-Custom visualizations are regenerated every ~6 hours by GitHub Actions from public repository data.
-Language volume is measured in bytes of code (notebook outputs can inflate Jupyter numbers).
+Custom visualizations are regenerated by GitHub Actions from public repository data.
 </sub>
 
 ---
@@ -193,13 +183,4 @@ Open to interesting problems in physical AI, reliable agents, and production ML 
 
 <img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/footer.svg" alt="" width="100%"/>
 
-</div>
-
----
-
-<div align="center">
-<sub>
-Profile built with data-driven animated SVGs + real-time widgets.<br/>
-After pushing, run the <b>Refresh profile</b> and <b>Generate contribution snake</b> workflows once for full effect.
-</sub>
 </div>
