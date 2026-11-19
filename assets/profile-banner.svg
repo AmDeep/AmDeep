@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title description">
+  <title id="title">Amardeep Singh — applied AI, retrieval, and robotics</title>
+  <desc id="description">A visual introduction to Amardeep Singh and an engineering loop from context to intelligence to action.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081426"/>
+      <stop offset="0.58" stop-color="#102c48"/>
+      <stop offset="1" stop-color="#123d49"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#48d6c5"/>
+      <stop offset="1" stop-color="#72a7ff"/>
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0H0V34" fill="none" stroke="#9bc5e8" stroke-opacity=".07"/>
+    </pattern>
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="320" rx="24" fill="url(#background)"/>
+  <rect width="1200" height="320" rx="24" fill="url(#grid)"/>
+  <circle cx="1050" cy="90" r="95" fill="#39d5c3" opacity=".14" filter="url(#soft-glow)"/>
+  <circle cx="1050" cy="90" r="95" fill="#39d5c3" opacity=".08"/>
+  <path d="M0 276C240 220 375 330 620 270s390-94 580-42" fill="none" stroke="url(#accent)" stroke-opacity=".22" stroke-width="2"/>
+
+  <text x="64" y="75" fill="#7ee7d6" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">APPLIED AI · RETRIEVAL · ROBOTICS</text>
+  <text x="60" y="151" fill="#f3f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="52" font-weight="700">Amardeep Singh</text>
+  <text x="64" y="196" fill="#c6d9eb" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Building intelligent systems from data to deployment.</text>
+  <rect x="64" y="229" width="248" height="3" rx="1.5" fill="url(#accent)"/>
+  <text x="64" y="261" fill="#a9c2d7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Toronto, Canada  ·  ML/AI engineering</text>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="790" y="79" fill="#9dbbd1" font-size="12" font-weight="700" letter-spacing="2">THE BUILD LOOP</text>
+    <path d="M831 151H1067" fill="none" stroke="#68d9cb" stroke-opacity=".72" stroke-width="2"/>
+    <path d="m1058 145 10 6-10 6" fill="none" stroke="#68d9cb" stroke-width="2"/>
+    <circle cx="835" cy="151" r="28" fill="#163e56" stroke="#4ed8c8" stroke-width="2"/>
+    <circle cx="950" cy="151" r="28" fill="#163e56" stroke="#62c9d4" stroke-width="2"/>
+    <circle cx="1065" cy="151" r="28" fill="#163e56" stroke="#77aaff" stroke-width="2"/>
+    <text x="835" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">DATA</text>
+    <text x="950" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">MODEL</text>
+    <text x="1065" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">SYSTEM</text>
+    <text x="835" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">context</text>
+    <text x="950" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">evaluate</text>
+    <text x="1065" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">deliver</text>
+    <text x="790" y="258" fill="#b9d1e4" font-size="14">Useful output. Clear boundaries. Room to iterate.</text>
+  </g>
+</svg>
