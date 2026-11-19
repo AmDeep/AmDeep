@@ -1,72 +1,48 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-labelledby="t d" xmlns:c2pa="http://c2pa.org/manifest">
-  <title id="t">Amardeep Singh — applied AI, retrieval, and robotics</title>
-  <desc id="d">Animated diagram: plans from a model travel toward a robot. Plans within limits pass a validator; one outside limits is stopped and rejected.</desc>
-  <style>
-    .sans{font-family:'Segoe UI','Helvetica Neue',Arial,system-ui,sans-serif}
-    .mono{font-family:'JetBrains Mono','SFMono-Regular',Consolas,ui-monospace,monospace}
-    .pk{opacity:0;animation-duration:9s;animation-iteration-count:infinite;animation-timing-function:ease-in-out}
-    .pass{fill:#5CC8C0;animation-name:pass}
-    .rej{fill:#5CC8C0;animation-name:rej}
-    .p1{animation-delay:0s}.p2{animation-delay:3s}.p3{animation-delay:6s}
-    .gate{animation:flash 9s 3s infinite}
-    @keyframes pass{
-      0%{transform:translateX(0);opacity:0}
-      4%{opacity:1}
-      40%{transform:translateX(620px);opacity:1}
-      46%,100%{transform:translateX(620px);opacity:0}}
-    @keyframes rej{
-      0%{transform:translate(0,0);opacity:0;fill:#5CC8C0}
-      4%{opacity:1}
-      22%{transform:translate(268px,0);opacity:1;fill:#5CC8C0}
-      26%{fill:#FFB347}
-      30%{transform:translate(268px,0);opacity:1;fill:#FFB347}
-      42%,100%{transform:translate(250px,-52px);opacity:0;fill:#FFB347}}
-    @keyframes flash{
-      0%,20%{stroke:#8FA3B8;stroke-width:3}
-      24%,32%{stroke:#FFB347;stroke-width:5}
-      40%,100%{stroke:#8FA3B8;stroke-width:3}}
-    @media (prefers-reduced-motion:reduce){
-      .pk,.gate{animation:none}
-      .pk{opacity:1}
-      .p1{transform:translateX(620px)}
-      .p2{transform:translate(250px,-52px);fill:#FFB347}
-      .p3{transform:translateX(0)}}
-  </style>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title description">
+  <title id="title">Amardeep Singh — applied AI, retrieval, and robotics</title>
+  <desc id="description">A visual introduction to Amardeep Singh and an engineering loop from context to intelligence to action.</desc>
   <defs>
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M40 0H0V40" fill="none" stroke="#1F3044" stroke-width="1"/>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#081426"/>
+      <stop offset="0.58" stop-color="#102c48"/>
+      <stop offset="1" stop-color="#123d49"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#48d6c5"/>
+      <stop offset="1" stop-color="#72a7ff"/>
+    </linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0H0V34" fill="none" stroke="#9bc5e8" stroke-opacity=".07"/>
     </pattern>
+    <filter id="soft-glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
   </defs>
+  <rect width="1200" height="320" rx="24" fill="url(#background)"/>
+  <rect width="1200" height="320" rx="24" fill="url(#grid)"/>
+  <circle cx="1050" cy="90" r="95" fill="#39d5c3" opacity=".14" filter="url(#soft-glow)"/>
+  <circle cx="1050" cy="90" r="95" fill="#39d5c3" opacity=".08"/>
+  <path d="M0 276C240 220 375 330 620 270s390-94 580-42" fill="none" stroke="url(#accent)" stroke-opacity=".22" stroke-width="2"/>
 
-  <rect width="1200" height="400" fill="#0E1621"/>
-  <rect width="1200" height="400" fill="url(#grid)"/>
+  <text x="64" y="75" fill="#7ee7d6" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14" font-weight="700" letter-spacing="3">APPLIED AI · RETRIEVAL · ROBOTICS</text>
+  <text x="60" y="151" fill="#f3f8ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="52" font-weight="700">Amardeep Singh</text>
+  <text x="64" y="196" fill="#c6d9eb" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="21">Building intelligent systems from data to deployment.</text>
+  <rect x="64" y="229" width="248" height="3" rx="1.5" fill="url(#accent)"/>
+  <text x="64" y="261" fill="#a9c2d7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="15">Toronto, Canada  ·  ML/AI engineering</text>
 
-  <text x="80" y="118" class="sans" font-size="64" font-weight="700" fill="#E8EEF4" letter-spacing="-1">Amardeep Singh</text>
-  <text x="82" y="162" class="sans" font-size="26" fill="#B8C7D6">Applied AI, retrieval, and robotics</text>
-  <text x="82" y="196" class="mono" font-size="15" fill="#8FA3B8">Toronto · generated plans are validated before they reach hardware</text>
-
-  <!-- track -->
-  <line x1="260" y1="300" x2="960" y2="300" stroke="#2C4058" stroke-width="2" stroke-dasharray="3 7"/>
-
-  <!-- nodes -->
-  <rect x="80" y="268" width="180" height="64" rx="6" fill="#16263A" stroke="#2C4058"/>
-  <text x="170" y="307" class="mono" font-size="16" fill="#E8EEF4" text-anchor="middle">model plan</text>
-
-  <rect x="960" y="268" width="180" height="64" rx="6" fill="#16263A" stroke="#2C4058"/>
-  <text x="1050" y="307" class="mono" font-size="16" fill="#E8EEF4" text-anchor="middle">robot</text>
-
-  <!-- gate -->
-  <line class="gate" x1="600" y1="246" x2="600" y2="354" stroke="#8FA3B8" stroke-width="3" stroke-linecap="round"/>
-  <text x="600" y="380" class="mono" font-size="14" fill="#8FA3B8" text-anchor="middle">deterministic validator</text>
-
-  <!-- packets -->
-  <rect class="pk pass p1" x="280" y="292" width="40" height="16" rx="3"/>
-  <rect class="pk rej  p2" x="280" y="292" width="40" height="16" rx="3"/>
-  <rect class="pk pass p3" x="280" y="292" width="40" height="16" rx="3"/>
-
-  <!-- legend -->
-  <rect x="860" y="96" width="14" height="14" rx="2" fill="#5CC8C0"/>
-  <text x="884" y="108" class="sans" font-size="15" fill="#B8C7D6">within limits: executed</text>
-  <rect x="860" y="124" width="14" height="14" rx="2" fill="#FFB347"/>
-  <text x="884" y="136" class="sans" font-size="15" fill="#B8C7D6">outside limits: rejected</text>
-<metadata><c2pa:manifest>AAAWgmp1bWIAAAAeanVtZGMycGEAEQAQgAAAqgA4m3EDYzJwYQAAABZcanVtYgAAAEdqdW1kYzJtYQARABCAAACqADibcQN1cm46YzJwYTphNzMzYjJmMC05Nzg3LTQxYmQtODdlOS1kYWM0YmQxYzgwYmEAAAADl2p1bWIAAAApanVtZGMyYXMAEQAQgAAAqgA4m3EDYzJwYS5hc3NlcnRpb25zAAAAALxqdW1iAAAARGp1bWRjYm9yABEAEIAAAKoAOJtxE2MycGEuaW5ncmVkaWVudC52MwAAAAAYYzJzaEFL50FtS1KnLVY8DcYgu+EAAABwY2JvcqNpZGM6Zm9ybWF0bWltYWdlL3N2Zyt4bWxqaW5zdGFuY2VJRHgseG1wOmlpZDo1OTQ3OWRjZS02MjY0LTQ1YmMtYmI4OC0yZDgzN2ViMTQxYjVscmVsYXRpb25zaGlwaHBhcmVudE9mAAAB4mp1bWIAAABBanVtZGNib3IAEQAQgAAAqgA4m3ETYzJwYS5hY3Rpb25zLnYyAAAAABhjMnNoQI0DasBQDMOHYlermAvXaQAAAZljYm9yomdhY3Rpb25zgqJmYWN0aW9ua2MycGEub3BlbmVkanBhcmFtZXRlcnOha2luZ3JlZGllbnRzgaJjdXJseC1zZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmluZ3JlZGllbnQudjNkaGFzaFgghvt5FcF2QpI9P+Upvhr9QkfBNmL+Mf5e65pqgSU9xtekZmFjdGlvbngdY29tLmFudGhyb3BpYy5jbGF1ZGUucHJvdmlkZWRqcGFyYW1ldGVyc6F4H2NvbS5hbnRocm9waWMub3JpZ2luLWNvbmZpZGVuY2VndW5rbm93bmtkZXNjcmlwdGlvbnhmQ2xhdWRlIHByb3ZpZGVkIHRoaXMgZmlsZSBhdCB0aGUgcmVxdWVzdCBvZiBhIHVzZXIgYW5kIG1heSBoYXZlIGNyZWF0ZWQgb3IgbW9kaWZpZWQgdGhlIGZpbGUgY29udGVudHMubXNvZnR3YXJlQWdlbnShZG5hbWVmQ2xhdWRlcmFsbEFjdGlvbnNJbmNsdWRlZPUAAADIanVtYgAAAEBqdW1kY2JvcgARABCAAACqADibcRNjMnBhLmhhc2guZGF0YQAAAAAYYzJzaO8QAYy2+xGOM/1vLpL01v4AAACAY2JvcqVjYWxnZnNoYTI1NmNwYWRMAAAAAAAAAAAAAAAAZGhhc2hYIMmUuBfYYwARuzK3WuDlrwqZUmGNjsqyZ+YTNPiHdeAlZG5hbWVuanVtYmYgbWFuaWZlc3RqZXhjbHVzaW9uc4GiZXN0YXJ0GQ8MZmxlbmd0aBkeBAAAAj5qdW1iAAAAJ2p1bWRjMmNsABEAEIAAAKoAOJtxA2MycGEuY2xhaW0udjIAAAACD2Nib3KlY2FsZ2ZzaGEyNTZpc2lnbmF0dXJleE1zZWxmI2p1bWJmPS9jMnBhL3VybjpjMnBhOmE3MzNiMmYwLTk3ODctNDFiZC04N2U5LWRhYzRiZDFjODBiYS9jMnBhLnNpZ25hdHVyZWppbnN0YW5jZUlEeCx4bXA6aWlkOmZiZjc5MjVkLTMwMTMtNDdkYS05MGQ4LWYyOTliYWM4NjVhNnJjcmVhdGVkX2Fzc2VydGlvbnODomN1cmx4LXNlbGYjanVtYmY9YzJwYS5hc3NlcnRpb25zL2MycGEuaW5ncmVkaWVudC52M2RoYXNoWCCG+3kVwXZCkj0/5Sm+Gv1CR8E2Yv4x/l7rmmqBJT3G16JjdXJseCpzZWxmI2p1bWJmPWMycGEuYXNzZXJ0aW9ucy9jMnBhLmFjdGlvbnMudjJkaGFzaFggTLIddBR3XT+FTCMWuo0N4lAXSkW1g3EimBiSaQmRpn+iY3VybHgpc2VsZiNqdW1iZj1jMnBhLmFzc2VydGlvbnMvYzJwYS5oYXNoLmRhdGFkaGFzaFggJiZd91YE742kROMLuikR9hRY23cJCRUEoXvJAC/Cm4F0Y2xhaW1fZ2VuZXJhdG9yX2luZm+jZG5hbWVvQW50aHJvcGljIEZpbGVzZ3ZlcnNpb25lMS4wLjBrc3BlY1ZlcnNpb25lMi40LjAAABA4anVtYgAAAChqdW1kYzJjcwARABCAAACqADibcQNjMnBhLnNpZ25hdHVyZQAAABAIY2JvctKEWQISogEmGCFZAgowggIGMIIBjaADAgECAhRA5aAK7sI50L64g/oGQgU9Z1UTADAKBggqhkjOPQQDAzBJMRcwFQYDVQQKEw5BbnRocm9waWMsIFBCQzEuMCwGA1UEAxMlQW50aHJvcGljIENvbnRlbnQgQ3JlZGVudGlhbHMgUm9vdCBDQTAeFw0yNjA4MDcxODQzNTZaFw0yODA4MDYxOTQzNTZaMEQxFzAVBgNVBAoTDkFudGhyb3BpYywgUEJDMSkwJwYDVQQDEyBBbnRocm9waWMgQ2xhdWRlIENvbnRlbnQgU2lnbmluZzBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABJh6CmvLUBgFFNU0vUKlOVtE6djd17L5SuwX0LemFisBM3dkd/3cyjxFA3Qo5S46fX0/ihY0VZ7mfb9KF703t5OjWDBWMA4GA1UdDwEB/wQEAwIHgDAVBgNVHSUEDjAMBgorBgEEAYPoXgIBMAwGA1UdEwEB/wQCMAAwHwYDVR0jBBgwFoAUzlHiBIFOZFsj+OPEz5o+nMHXXMIwCgYIKoZIzj0EAwMDZwAwZAIwMXMdFJ4BetLLVY7ORuE9noqbbAZOZn/aArXyTwFAZfKrPzxF2vPoJNf1+UCdg1XGAjBwX1zd9WGqYkqmL5SFqw1QySjr1zJfpJM9+1rdDwSPLMOPOjKuiXjoU/pUUeG9RwmhY3BhZFkNngAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPZYQJRL/ZXAyXRHqCioZz2j6BgeAvLrFbr4hgWMXQooEEPiMQTHgeDvDwOE9iO3ZujGTTNtBX88pgai31BLU4ZeCKo=</c2pa:manifest></metadata></svg>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <text x="790" y="79" fill="#9dbbd1" font-size="12" font-weight="700" letter-spacing="2">THE BUILD LOOP</text>
+    <path d="M831 151H1067" fill="none" stroke="#68d9cb" stroke-opacity=".72" stroke-width="2"/>
+    <path d="m1058 145 10 6-10 6" fill="none" stroke="#68d9cb" stroke-width="2"/>
+    <circle cx="835" cy="151" r="28" fill="#163e56" stroke="#4ed8c8" stroke-width="2"/>
+    <circle cx="950" cy="151" r="28" fill="#163e56" stroke="#62c9d4" stroke-width="2"/>
+    <circle cx="1065" cy="151" r="28" fill="#163e56" stroke="#77aaff" stroke-width="2"/>
+    <text x="835" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">DATA</text>
+    <text x="950" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">MODEL</text>
+    <text x="1065" y="156" fill="#effaff" text-anchor="middle" font-size="12" font-weight="700">SYSTEM</text>
+    <text x="835" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">context</text>
+    <text x="950" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">evaluate</text>
+    <text x="1065" y="203" fill="#a9c2d7" text-anchor="middle" font-size="12">deliver</text>
+    <text x="790" y="258" fill="#b9d1e4" font-size="14">Useful output. Clear boundaries. Room to iterate.</text>
+  </g>
+</svg>

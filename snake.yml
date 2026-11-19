@@ -1,4 +1,4 @@
-name: Contribution snake
+name: Generate contribution snake
 
 on:
   schedule:
@@ -16,8 +16,11 @@ jobs:
         with:
           github_user_name: ${{ github.repository_owner }}
           outputs: |
-            dist/github-snake.svg?color_snake=%235CC8C0&color_dots=#1F3044,#2C6E73,#3FA3A0,#5CC8C0,#9BE8E1
-      - uses: crazy-max/ghaction-github-pages@v3.1.0
+            dist/github-snake.svg?palette=github
+            dist/github-snake-dark.svg?palette=github-dark&color_snake=#5CC8C0
+
+      - name: Push to output branch
+        uses: crazy-max/ghaction-github-pages@v4
         with:
           target_branch: output
           build_dir: dist
