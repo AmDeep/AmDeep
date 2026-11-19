@@ -1,9 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="520" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
-<title id="title">AmDeep AI engineering ecosystem</title><desc id="desc">A visual map connecting agentic AI, machine learning, computer vision, data, cloud, and physical AI to shipped project evidence.</desc>
-<defs><linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#0f172a"/><stop offset="1" stop-color="#172554"/></linearGradient><filter id="glow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
-<rect width="1200" height="520" rx="22" fill="url(#bg)"/><text x="54" y="58" font-family="Segoe UI,Arial" font-size="29" font-weight="700" fill="#f8fafc">AI engineering ecosystem</text><text x="54" y="87" font-family="Segoe UI,Arial" font-size="15" fill="#bfdbfe">From data and models to agents, products, and physical systems</text>
-<g stroke="#38bdf8" stroke-width="2" opacity=".65" fill="none"><path d="M600 245 L230 155"/><path d="M600 245 L400 390"/><path d="M600 245 L600 125"/><path d="M600 245 L970 155"/><path d="M600 245 L800 390"/><path d="M600 245 L1030 365"/></g>
-<g filter="url(#glow)"><circle cx="600" cy="245" r="82" fill="#0ea5e9"/><text x="600" y="238" text-anchor="middle" font-family="Segoe UI,Arial" font-size="23" font-weight="700" fill="#fff">AmDeep</text><text x="600" y="267" text-anchor="middle" font-family="Segoe UI,Arial" font-size="15" fill="#e0f2fe">AI systems</text></g>
-<g font-family="Segoe UI,Arial"><g><circle cx="230" cy="155" r="64" fill="#7c3aed"/><text x="230" y="150" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Agentic AI</text><text x="230" y="176" text-anchor="middle" font-size="13" fill="#ede9fe">LangGraph · tools</text></g><g><circle cx="400" cy="390" r="64" fill="#f59e0b"/><text x="400" y="385" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">ML + Data</text><text x="400" y="411" text-anchor="middle" font-size="13" fill="#fffbeb">prediction · fuzzy</text></g><g><circle cx="600" cy="125" r="64" fill="#14b8a6"/><text x="600" y="120" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Vision</text><text x="600" y="146" text-anchor="middle" font-size="13" fill="#ccfbf1">OpenCV · tracking</text></g><g><circle cx="970" cy="155" r="64" fill="#ec4899"/><text x="970" y="150" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Product AI</text><text x="970" y="176" text-anchor="middle" font-size="13" fill="#fce7f3">APIs · full-stack</text></g><g><circle cx="800" cy="390" r="64" fill="#2563eb"/><text x="800" y="385" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Physical AI</text><text x="800" y="411" text-anchor="middle" font-size="13" fill="#dbeafe">ROS 2 · edge</text></g><g><circle cx="1030" cy="365" r="64" fill="#64748b"/><text x="1030" y="360" text-anchor="middle" font-size="17" font-weight="700" fill="#fff">Delivery</text><text x="1030" y="386" text-anchor="middle" font-size="13" fill="#f1f5f9">cloud · CI/CD</text></g></g>
-<rect x="54" y="460" width="1092" height="1" fill="#475569"/><text x="54" y="490" font-family="Segoe UI,Arial" font-size="14" fill="#cbd5e1">Evidence spans 112 owned repositories · 13 stars · Python, notebooks, C++, TypeScript, JavaScript, C, R, MATLAB</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" role="img" aria-labelledby="title description">
+  <title id="title">A connected engineering workflow</title>
+  <desc id="description">Data and retrieval inform models and evaluation, which connect through tools and products to edge systems and robotics.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1729"/>
+      <stop offset="1" stop-color="#102c3c"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#49d6c3"/>
+      <stop offset="1" stop-color="#7aa7ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="380" rx="22" fill="url(#background)"/>
+  <text x="44" y="52" fill="#eff7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">A connected engineering workflow</text>
+  <text x="44" y="78" fill="#9db8ce" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14">Make each layer explicit, measurable, and useful to the next.</text>
+
+  <g fill="none" stroke="url(#line)" stroke-width="2">
+    <path d="M286 182h31"/>
+    <path d="m310 176 8 6-8 6"/>
+    <path d="M571 182h31"/>
+    <path d="m595 176 8 6-8 6"/>
+    <path d="M856 182h31"/>
+    <path d="m880 176 8 6-8 6"/>
+  </g>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <g>
+      <rect x="36" y="112" width="250" height="142" rx="16" fill="#142b42" stroke="#31516a"/>
+      <circle cx="66" cy="145" r="13" fill="#2cbfae" opacity=".92"/>
+      <text x="91" y="150" fill="#7ee7d6" font-size="12" font-weight="700" letter-spacing="1.5">01 · CONTEXT</text>
+      <text x="58" y="190" fill="#f3f8ff" font-size="20" font-weight="700">Data &amp; retrieval</text>
+      <text x="58" y="221" fill="#aec5d9" font-size="13">Signals · sources · useful context</text>
+    </g>
+    <g>
+      <rect x="321" y="112" width="250" height="142" rx="16" fill="#142b42" stroke="#31516a"/>
+      <circle cx="351" cy="145" r="13" fill="#42b9c9" opacity=".92"/>
+      <text x="376" y="150" fill="#8bdde7" font-size="12" font-weight="700" letter-spacing="1.5">02 · EVIDENCE</text>
+      <text x="343" y="190" fill="#f3f8ff" font-size="20" font-weight="700">Models &amp; evaluation</text>
+      <text x="343" y="221" fill="#aec5d9" font-size="13">Quality · latency · repeatability</text>
+    </g>
+    <g>
+      <rect x="606" y="112" width="250" height="142" rx="16" fill="#142b42" stroke="#31516a"/>
+      <circle cx="636" cy="145" r="13" fill="#658ce7" opacity=".92"/>
+      <text x="661" y="150" fill="#a9c2ff" font-size="12" font-weight="700" letter-spacing="1.5">03 · INTEGRATION</text>
+      <text x="628" y="190" fill="#f3f8ff" font-size="20" font-weight="700">Tools &amp; products</text>
+      <text x="628" y="221" fill="#aec5d9" font-size="13">APIs · workflows · observability</text>
+    </g>
+    <g>
+      <rect x="891" y="112" width="273" height="142" rx="16" fill="#142b42" stroke="#31516a"/>
+      <circle cx="921" cy="145" r="13" fill="#8a80e5" opacity=".92"/>
+      <text x="946" y="150" fill="#c0b9ff" font-size="12" font-weight="700" letter-spacing="1.5">04 · DEPLOYMENT</text>
+      <text x="913" y="190" fill="#f3f8ff" font-size="20" font-weight="700">Edge &amp; robotics</text>
+      <text x="913" y="221" fill="#aec5d9" font-size="13">Constraints · safety · feedback</text>
+    </g>
+  </g>
+
+  <path d="M44 296h1120" stroke="#36506a" stroke-width="1"/>
+  <text x="44" y="330" fill="#c2d5e7" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="14">The goal: a clear path from information to a decision, then to a system people can use.</text>
 </svg>
