@@ -33,7 +33,7 @@ I build AI systems that are easier to inspect, test, and trust—from retrieval 
 
 <p align="center"><a href="https://amdeep.github.io/AmDeep/"><strong>Open the interactive portfolio dashboard →</strong></a></p>
 
-<p align="center"><img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/metrics.svg?v=20261128T130626Z" alt="Dynamic snapshot of owned public repositories, stars, primary languages, and repositories whose latest push was within 30 days." width="100%"/></p>
+<p align="center"><img src="https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile/metrics.svg?v=20261128T131015Z" alt="Dynamic snapshot of owned public repositories, stars, primary languages, and repositories whose latest push was within 30 days." width="100%"/></p>
 
 <sub>Metrics cover owned public non-fork repositories. The monthly chart counts repositories by their latest push date, not commit volume.</sub>
 
