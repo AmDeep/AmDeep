@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="270" viewBox="0 0 1200 270" role="img" aria-labelledby="svg-title svg-description">
+  <title id="svg-title">Engineering approach</title>
+  <desc id="svg-description">A four-stage pattern across selected repositories: gather context, produce a structured proposal, validate it, and verify behavior with tests or replay.</desc>
+  <style>
+    .sans{font-family:Inter,'Segoe UI',Arial,sans-serif}
+    .mono{font-family:'SFMono-Regular',Consolas,monospace}
+    @media (prefers-reduced-motion: no-preference) {
+      .signal{animation:signal-travel 5s ease-in-out infinite}
+      .pulse{animation:pulse 3.2s ease-in-out infinite}
+      .card-accent{animation:accent-shift 8s ease-in-out infinite}
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .signal,.pulse,.card-accent{animation:none!important}
+    }
+    @keyframes signal-travel{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(350px);opacity:1}}
+    @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+    @keyframes accent-shift{0%,100%{opacity:.72}50%{opacity:1}}
+  </style>
+  
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#55D6BE" stroke-width="1.5"/></marker></defs>
+  <rect width="1200" height="270" rx="22" fill="#101826"/>
+  <text x="50" y="42" class="sans" font-size="16" font-weight="700" fill="#F3F6FB">HOW I DESIGN SYSTEMS</text>
+  <text x="50" y="62" class="sans" font-size="12" fill="#A9B8CC">A pattern visible across the selected agent, retrieval, inference, and robotics work.</text>
+  
+  <g>
+    <rect x="50" y="80" width="246" height="124" rx="16" fill="#172438" stroke="#2B3B53"/>
+    <text x="70" y="110" class="mono" font-size="12" fill="#82A8FF">01</text>
+    <text x="70" y="146" class="sans" font-size="22" font-weight="700" fill="#F3F6FB">Context</text>
+    <text x="70" y="176" class="sans" font-size="13" fill="#A9B8CC">retrieval · state · constraints</text>
+  </g><path d="M300 142H328" stroke="#82A8FF" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="336" y="80" width="246" height="124" rx="16" fill="#172438" stroke="#2B3B53"/>
+    <text x="356" y="110" class="mono" font-size="12" fill="#D69BFF">02</text>
+    <text x="356" y="146" class="sans" font-size="22" font-weight="700" fill="#F3F6FB">Proposal</text>
+    <text x="356" y="176" class="sans" font-size="13" fill="#A9B8CC">structured model output</text>
+  </g><path d="M586 142H614" stroke="#D69BFF" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="622" y="80" width="246" height="124" rx="16" fill="#172438" stroke="#2B3B53"/>
+    <text x="642" y="110" class="mono" font-size="12" fill="#55D6BE">03</text>
+    <text x="642" y="146" class="sans" font-size="22" font-weight="700" fill="#F3F6FB">Validation</text>
+    <text x="642" y="176" class="sans" font-size="13" fill="#A9B8CC">schema · policy · limits</text>
+  </g><path d="M872 142H900" stroke="#55D6BE" stroke-width="2" marker-end="url(#arrow)"/>
+  <g>
+    <rect x="908" y="80" width="246" height="124" rx="16" fill="#172438" stroke="#2B3B53"/>
+    <text x="928" y="110" class="mono" font-size="12" fill="#FFB86B">04</text>
+    <text x="928" y="146" class="sans" font-size="22" font-weight="700" fill="#F3F6FB">Evidence</text>
+    <text x="928" y="176" class="sans" font-size="13" fill="#A9B8CC">tests · replay · measured results</text>
+  </g>
+  <text x="50" y="242" class="mono" font-size="12" fill="#A9B8CC">Model output is a proposal; deterministic checks decide what may proceed.</text>
+
+</svg>

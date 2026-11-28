@@ -1,0 +1,30 @@
+name: Notify AmDeep profile after repository push
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: none
+
+jobs:
+  notify:
+    if: github.event_name == 'workflow_dispatch' || github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send a generic refresh event
+        env:
+          PROFILE_UPDATE_TOKEN: ${{ secrets.PROFILE_UPDATE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PROFILE_UPDATE_TOKEN:-}" ]; then
+            echo "Add the PROFILE_UPDATE_TOKEN secret to this repository's Actions secrets."
+            exit 1
+          fi
+          curl --silent --show-error --fail-with-body \
+            --request POST \
+            --url "https://api.github.com/repos/AmDeep/AmDeep/dispatches" \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer ${PROFILE_UPDATE_TOKEN}" \
+            --header "X-GitHub-Api-Version: 2026-03-10" \
+            --data '{"event_type":"profile-refresh","client_payload":{}}'

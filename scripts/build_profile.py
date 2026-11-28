@@ -1,486 +1,386 @@
-"""Generate every image on the profile from the public data of ALL repositories.
+#!/usr/bin/env python3
+"""Generate the profile README and self-hosted SVGs from profile-content.json.
 
-Writes SVGs to profile/. Standard library only. Set GITHUB_TOKEN (Actions provides it).
-Env: PROFILE_USER (default AmDeep), SEED=1 to write placeholders when the API is unreachable.
+This intentionally uses only the Python standard library: the profile is static
+Markdown and SVG, so a framework or third-party image service would add upkeep
+without improving what GitHub can render.
 """
-import hashlib
+
+from __future__ import annotations
+
+import argparse
 import html
 import json
-import math
-import os
-import textwrap
-import urllib.request
-from collections import Counter
-from datetime import datetime, timedelta, timezone
-
-USER = os.environ.get("PROFILE_USER", "AmDeep")
-OUT = os.environ.get("PROFILE_DIR", "profile")
-SEED = os.environ.get("SEED") == "1"
-
-FEATURED = {
-    "AIAgents": "Runnable reference patterns for reliable agent systems.",
-    "RAGSystemLabs": "Hands-on labs for retrieval-augmented generation systems.",
-    "inference-serving-portfolio": "Reproducible inference experiments, serving patterns, and benchmark evidence.",
-    "ros2-vllm-navigation-bridge": "A bounded navigation bridge with explicit ROS 2 contracts and local obstacle checks.",
-    "manipulation-vllm-safety-gateway": "Validation and approval boundaries for robot manipulation commands.",
-    "edge-vision-vllm-inspector": "Computer-vision and inference integration patterns for edge deployment.",
-}
-TOOLBOX = {
-    "Languages": ["Python", "C/C++", "TypeScript", "JavaScript", "SQL", "R", "MATLAB"],
-    "AI / ML": ["PyTorch", "TensorFlow", "scikit-learn", "LangChain", "LangGraph", "vLLM"],
-    "Robotics & systems": ["ROS 2", "OpenCV", "ONNX Runtime", "TensorRT", "Triton", "MQTT", "Docker", "AWS", "Azure"],
-}
-DOMAINS = {
-    "Agents & LLM apps": ["agent", "llm", "langchain", "langgraph", "gpt", "openai", "chatbot", "genai", "vllm", "prompt"],
-    "Retrieval (RAG)": ["rag", "retrieval", "embedding", "vector", "semantic search"],
-    "Robotics & edge": ["ros", "robot", "navigation", "manipulation", "slam", "jetson", "edge", "embedded"],
-    "Computer vision": ["vision", "opencv", "yolo", "detection", "segmentation", "image", "cnn"],
-    "MLOps & cloud": ["mlops", "deploy", "aws", "azure", "docker", "inference", "serving", "sagemaker", "pipeline"],
-    "Data science": ["kaggle", "prediction", "regression", "classification", "forecast", "analysis", "analytics", "nlp", "sentiment"],
-}
-
-BG, PANEL, LINE, GRID = "#0E1621", "#16263A", "#2C4058", "#1F3044"
-INK, SOFT, MUTE, TEAL, AMBER = "#E8EEF4", "#B8C7D6", "#8FA3B8", "#5CC8C0", "#FFB347"
-PALETTE = [TEAL, AMBER, "#6EA8FE", "#B197FC", "#F783AC", "#8CE99A"]
-SLATE = "#8FA3B8"
-esc = html.escape
-
-BASE_CSS = (
-    ".s{font-family:'Segoe UI','Helvetica Neue',Arial,system-ui,sans-serif}"
-    ".m{font-family:'JetBrains Mono',Consolas,ui-monospace,monospace}"
-    "@media (prefers-reduced-motion:reduce){*{animation:none!important}}"
-)
+import re
+import sys
+from pathlib import Path
+from typing import Any
 
 
-# ---------- helpers ----------
-def hf(s, salt=""):
-    return int(hashlib.md5((salt + s).encode()).hexdigest()[:8], 16) / 0xFFFFFFFF
+ROOT = Path(__file__).resolve().parents[1]
+CONTENT_PATH = ROOT / "profile-content.json"
+RAW_BASE = "https://raw.githubusercontent.com/AmDeep/AmDeep/main/profile"
+PAGES_URL = "https://amdeep.github.io/AmDeep/"
+BACKGROUND = "#101826"
+PANEL = "#172438"
+PANEL_ALT = "#1D2C42"
+TEXT = "#F3F6FB"
+MUTED = "#A9B8CC"
+GRID = "#2B3B53"
+ACCENT = "#55D6BE"
 
 
-def pdt(s):
-    return datetime.fromisoformat(s.replace("Z", "+00:00"))
+def esc(value: Any) -> str:
+    """Escape text and attributes for safe SVG/HTML output."""
+    return html.escape(str(value), quote=True)
 
 
-def shade(hexc, f):
-    r, g, b = (int(hexc[i:i + 2], 16) for i in (1, 3, 5))
-    return "#%02x%02x%02x" % (int(r * f), int(g * f), int(b * f))
+def load_content(path: Path = CONTENT_PATH) -> dict[str, Any]:
+    content = json.loads(path.read_text(encoding="utf-8"))
+    validate_content(content)
+    return content
 
 
-def human_bytes(n):
-    for unit in ("B", "KB", "MB", "GB"):
-        if n < 1000 or unit == "GB":
-            return f"{n:.0f} {unit}" if unit == "B" else f"{n:.1f} {unit}"
-        n /= 1000
+def validate_content(content: dict[str, Any]) -> None:
+    required = ("name", "username", "headline", "subheadline", "intro", "projects")
+    missing = [key for key in required if not content.get(key)]
+    if missing:
+        raise ValueError(f"Missing required profile fields: {', '.join(missing)}")
+    projects = content["projects"]
+    if not projects:
+        raise ValueError("At least one featured project is required.")
+    ids: set[str] = set()
+    repos: set[str] = set()
+    for project in projects:
+        project_id = project.get("id", "")
+        if not re.fullmatch(r"[a-z0-9-]+", project_id):
+            raise ValueError(f"Invalid project id: {project_id!r}")
+        if project_id in ids or project.get("repo") in repos:
+            raise ValueError(f"Duplicate project id or repository: {project_id}")
+        if not project.get("url", "").startswith(
+            f"https://github.com/{content['username']}/"
+        ):
+            raise ValueError(f"Project URL is outside the profile owner: {project_id}")
+        for key in ("name", "scope", "summary", "evidence"):
+            if not project.get(key):
+                raise ValueError(f"Project {project_id} is missing {key}.")
+        ids.add(project_id)
+        repos.add(project["repo"])
+    if not any(project.get("featured") for project in projects):
+        raise ValueError("At least one project must be featured.")
 
 
-def svg(w, h, body, label, css=""):
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" role="img" aria-label="{esc(label)}">'
-            f"<style>{BASE_CSS}{css}</style>"
-            f'<rect width="{w}" height="{h}" fill="{BG}"/>{body}</svg>')
+def svg_shell(title: str, description: str, body: str, width: int, height: int) -> str:
+    title_id = "svg-title"
+    desc_id = "svg-description"
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-labelledby="{title_id} {desc_id}">
+  <title id="{title_id}">{esc(title)}</title>
+  <desc id="{desc_id}">{esc(description)}</desc>
+  <style>
+    .sans{{font-family:Inter,'Segoe UI',Arial,sans-serif}}
+    .mono{{font-family:'SFMono-Regular',Consolas,monospace}}
+    @media (prefers-reduced-motion: no-preference) {{
+      .signal{{animation:signal-travel 5s ease-in-out infinite}}
+      .pulse{{animation:pulse 3.2s ease-in-out infinite}}
+      .card-accent{{animation:accent-shift 8s ease-in-out infinite}}
+    }}
+    @media (prefers-reduced-motion: reduce) {{
+      .signal,.pulse,.card-accent{{animation:none!important}}
+    }}
+    @keyframes signal-travel{{0%,100%{{transform:translateX(0);opacity:.45}}50%{{transform:translateX(350px);opacity:1}}}}
+    @keyframes pulse{{0%,100%{{opacity:.55}}50%{{opacity:1}}}}
+    @keyframes accent-shift{{0%,100%{{opacity:.72}}50%{{opacity:1}}}}
+  </style>
+  {body}
+</svg>
+"""
 
 
-def txt(x, y, s, size=14, fill=SOFT, cls="s", weight=None, anchor=None, extra=""):
-    a = f' text-anchor="{anchor}"' if anchor else ""
-    w = f' font-weight="{weight}"' if weight else ""
-    return f'<text x="{x}" y="{y}" class="{cls}" font-size="{size}" fill="{fill}"{w}{a}{extra}>{esc(str(s))}</text>'
+def render_hero(content: dict[str, Any]) -> str:
+    body = f"""
+  <defs>
+    <linearGradient id="wash" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#17283E"/>
+      <stop offset="1" stop-color="#102A35"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="{GRID}" stroke-opacity=".45"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="340" rx="24" fill="url(#wash)"/>
+  <rect width="1200" height="340" rx="24" fill="url(#grid)"/>
+  <circle cx="1050" cy="82" r="120" fill="#55D6BE" opacity=".06"/>
+  <circle cx="1002" cy="258" r="150" fill="#82A8FF" opacity=".05"/>
+  <text x="68" y="92" class="mono" font-size="15" fill="{ACCENT}" letter-spacing="2">AMDEEP · TORONTO</text>
+  <text x="68" y="158" class="sans" font-size="52" font-weight="750" fill="{TEXT}">{esc(content['name'])}</text>
+  <text x="70" y="202" class="sans" font-size="24" font-weight="650" fill="{TEXT}">{esc(content['headline'])}</text>
+  <text x="70" y="238" class="sans" font-size="18" fill="{MUTED}">{esc(content['subheadline'])}</text>
+  <text x="70" y="280" class="sans" font-size="16" fill="{MUTED}">Inspectable systems · explicit boundaries · reproducible evidence</text>
+  <path d="M714 202H1098" stroke="#45617A" stroke-width="3" stroke-linecap="round"/>
+  <path d="M744 202H1030" stroke="{ACCENT}" stroke-width="2" stroke-dasharray="5 12" opacity=".7"/>
+  <circle cx="742" cy="202" r="11" fill="{ACCENT}" opacity=".18"/>
+  <circle class="signal" cx="742" cy="202" r="6" fill="{ACCENT}"/>
+  <g class="sans" text-anchor="middle">
+    <rect x="708" y="132" width="124" height="42" rx="12" fill="{PANEL}" stroke="{GRID}"/>
+    <text x="770" y="158" font-size="14" fill="{TEXT}">model output</text>
+    <rect x="850" y="132" width="124" height="42" rx="12" fill="{PANEL}" stroke="{GRID}"/>
+    <text x="912" y="158" font-size="14" fill="{TEXT}">validation</text>
+    <rect x="992" y="132" width="124" height="42" rx="12" fill="{PANEL}" stroke="{GRID}"/>
+    <text x="1054" y="158" font-size="14" fill="{TEXT}">bounded action</text>
+  </g>
+  <circle class="pulse" cx="770" cy="202" r="4" fill="{ACCENT}"/>
+  <circle class="pulse" cx="912" cy="202" r="4" fill="#82A8FF" style="animation-delay:.7s"/>
+  <circle class="pulse" cx="1054" cy="202" r="4" fill="#FFB86B" style="animation-delay:1.4s"/>
+  <text x="912" y="248" class="mono" font-size="12" text-anchor="middle" fill="{MUTED}">A recurring pattern in the selected projects</text>
+"""
+    return svg_shell(
+        f"{content['name']} — {content['headline']}",
+        "A visual summary of applied AI work across retrieval, agent systems, inference, and robotics, with validation before action.",
+        body,
+        1200,
+        340,
+    )
 
 
-def write(name, body):
-    os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, name), "w", encoding="utf-8") as f:
-        f.write(body)
+def render_evidence(content: dict[str, Any]) -> str:
+    metrics = content["evidence_metrics"]
+    width, height = 1200, 270
+    card_width, gap, left = 344, 24, 56
+    cards = []
+    for index, metric in enumerate(metrics):
+        x = left + index * (card_width + gap)
+        cards.append(
+            f"""
+  <g>
+    <rect x="{x}" y="64" width="{card_width}" height="152" rx="18" fill="{PANEL}" stroke="{GRID}"/>
+    <rect class="card-accent" x="{x}" y="64" width="5" height="152" rx="3" fill="{ACCENT}" style="animation-delay:{index * 0.8}s"/>
+    <text x="{x + 24}" y="104" class="mono" font-size="12" fill="{MUTED}" letter-spacing="1">{esc(metric['label'])}</text>
+    <text x="{x + 24}" y="166" class="sans" font-size="48" font-weight="750" fill="{TEXT}">{esc(metric['value'])}</text>
+    <text x="{x + 24}" y="194" class="sans" font-size="14" fill="{MUTED}">{esc(metric['note'])}</text>
+  </g>"""
+        )
+    body = f"""
+  <rect width="{width}" height="{height}" rx="22" fill="{BACKGROUND}"/>
+  <text x="56" y="38" class="sans" font-size="16" font-weight="700" fill="{TEXT}">PROJECT SCOPE, NOT VANITY METRICS</text>
+  {''.join(cards)}
+  <text x="56" y="248" class="sans" font-size="12" fill="{MUTED}">Counts describe the documented contents of these repositories, not deployment volume or user impact.</text>
+"""
+    return svg_shell(
+        "Project scope evidence",
+        "Documented project counts: 12 agent labs, 15 retrieval projects, and a 12-stage inference portfolio. These are repository scope counts, not deployment metrics.",
+        body,
+        width,
+        height,
+    )
 
 
-def placeholder(name, w, h, label):
-    write(name, svg(w, h, txt(w / 2, h / 2, "Waiting for the first data refresh: run the Actions workflow.", 16, MUTE, "m", anchor="middle"), label))
+def render_approach(content: dict[str, Any]) -> str:
+    nodes = [
+        ("01", "Context", "retrieval · state · constraints", "#82A8FF"),
+        ("02", "Proposal", "structured model output", "#D69BFF"),
+        ("03", "Validation", "schema · policy · limits", "#55D6BE"),
+        ("04", "Evidence", "tests · replay · measured results", "#FFB86B"),
+    ]
+    boxes = []
+    for index, (number, title, subtitle, color) in enumerate(nodes):
+        x = 50 + index * 286
+        boxes.append(
+            f"""
+  <g>
+    <rect x="{x}" y="80" width="246" height="124" rx="16" fill="{PANEL}" stroke="{GRID}"/>
+    <text x="{x + 20}" y="110" class="mono" font-size="12" fill="{color}">{number}</text>
+    <text x="{x + 20}" y="146" class="sans" font-size="22" font-weight="700" fill="{TEXT}">{esc(title)}</text>
+    <text x="{x + 20}" y="176" class="sans" font-size="13" fill="{MUTED}">{esc(subtitle)}</text>
+  </g>"""
+        )
+        if index < len(nodes) - 1:
+            boxes.append(
+                f'<path d="M{x + 250} 142H{x + 278}" stroke="{color}" stroke-width="2" marker-end="url(#arrow)"/>'
+            )
+    body = f"""
+  <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="{ACCENT}" stroke-width="1.5"/></marker></defs>
+  <rect width="1200" height="270" rx="22" fill="{BACKGROUND}"/>
+  <text x="50" y="42" class="sans" font-size="16" font-weight="700" fill="{TEXT}">HOW I DESIGN SYSTEMS</text>
+  <text x="50" y="62" class="sans" font-size="12" fill="{MUTED}">A pattern visible across the selected agent, retrieval, inference, and robotics work.</text>
+  {''.join(boxes)}
+  <text x="50" y="242" class="mono" font-size="12" fill="{MUTED}">Model output is a proposal; deterministic checks decide what may proceed.</text>
+"""
+    return svg_shell(
+        "Engineering approach",
+        "A four-stage pattern across selected repositories: gather context, produce a structured proposal, validate it, and verify behavior with tests or replay.",
+        body,
+        1200,
+        270,
+    )
 
 
-# ---------- GitHub data ----------
-def _req(url, data=None):
-    req = urllib.request.Request(url, data=data, headers={"Accept": "application/vnd.github+json", "User-Agent": "profile-assets"})
-    if os.environ.get("GITHUB_TOKEN"):
-        req.add_header("Authorization", f"Bearer {os.environ['GITHUB_TOKEN']}")
-    with urllib.request.urlopen(req, timeout=40) as r:
-        return json.load(r)
+def render_project_card(project: dict[str, Any]) -> str:
+    body = f"""
+  <defs><linearGradient id="card" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{PANEL}"/><stop offset="1" stop-color="{BACKGROUND}"/></linearGradient></defs>
+  <rect width="1100" height="220" rx="20" fill="url(#card)" stroke="{GRID}"/>
+  <rect x="0" y="0" width="7" height="220" rx="4" fill="{esc(project['color'])}"/>
+  <text x="36" y="47" class="mono" font-size="13" fill="{esc(project['color'])}" letter-spacing="1">{esc(project['scope'].upper())}</text>
+  <text x="36" y="91" class="sans" font-size="29" font-weight="720" fill="{TEXT}">{esc(project['name'])}</text>
+  <text x="36" y="130" class="sans" font-size="16" fill="{MUTED}">{esc(project['summary'])}</text>
+  <text x="36" y="161" class="sans" font-size="14" fill="{TEXT}">{esc(project['evidence'])}</text>
+  <text x="36" y="196" class="mono" font-size="12" fill="#8395AD">github.com/AmDeep/{esc(project['repo'])}</text>
+  <circle class="pulse" cx="1044" cy="44" r="8" fill="{esc(project['color'])}" opacity=".8"/>
+"""
+    return svg_shell(
+        project["name"],
+        f"{project['scope']}. {project['summary']} Evidence: {project['evidence']}",
+        body,
+        1100,
+        220,
+    )
 
 
-def all_repos():
-    repos, page = [], 1
-    while True:
-        batch = _req(f"https://api.github.com/users/{USER}/repos?per_page=100&type=owner&page={page}")
-        repos += batch
-        if len(batch) < 100:
-            return [r for r in repos if not r.get("private")]
-        page += 1
+def html_link(url: str, label: str) -> str:
+    return f'<a href="{esc(url)}">{esc(label)}</a>'
 
 
-def repo_languages(repos):
-    per, total = {}, Counter()
-    for r in repos:
-        if r["fork"]:
-            continue
-        try:
-            d = _req(f"https://api.github.com/repos/{USER}/{r['name']}/languages")
-        except Exception:
-            continue
-        per[r["name"]] = d
-        total.update(d)
-    return per, total
+def readme_project_cell(project: dict[str, Any]) -> str:
+    image = f"{RAW_BASE}/project-{project['id']}.svg"
+    return (
+        '<td width="50%" valign="top">'
+        f'<a href="{esc(project["url"])}"><img src="{image}" alt="{esc(project["name"])}: {esc(project["scope"])}. {esc(project["summary"])}" width="100%"/></a>'
+        f'<p><strong>{html_link(project["url"], project["name"])}</strong><br/>'
+        f'{esc(project["summary"])}<br/><em>Evidence:</em> {esc(project["evidence"])}</p>'
+        "</td>"
+    )
 
 
-def contributions():
-    q = ("query($l:String!){user(login:$l){contributionsCollection{contributionCalendar{totalContributions "
-         "weeks{contributionDays{date contributionCount}}}}}}")
-    d = _req("https://api.github.com/graphql", json.dumps({"query": q, "variables": {"l": USER}}).encode())
-    cal = d["data"]["user"]["contributionsCollection"]["contributionCalendar"]
-    return [(wk["contributionDays"]) for wk in cal["weeks"]], cal["totalContributions"]
+def render_readme(content: dict[str, Any], metrics_version: str = "bootstrap") -> str:
+    featured = [project for project in content["projects"] if project.get("featured")]
+    supporting = [project for project in content["projects"] if not project.get("featured")]
+    rows = []
+    for start in range(0, len(featured), 2):
+        pair = featured[start : start + 2]
+        cells = [readme_project_cell(project) for project in pair]
+        if len(cells) == 1:
+            cells.append("<td width=\"50%\"></td>")
+        rows.append("<tr>" + "".join(cells) + "</tr>")
+    featured_table = "<table>\n" + "\n".join(rows) + "\n</table>"
+    supporting_block = ""
+    if supporting:
+        cards = "\n\n".join(
+            f'<a href="{esc(project["url"])}"><img src="{RAW_BASE}/project-{project["id"]}.svg" alt="{esc(project["name"])}: {esc(project["scope"])}. {esc(project["summary"])}" width="100%"/></a>\n\n'
+            f'**{html_link(project["url"], project["name"])}** — {esc(project["summary"])} '
+            f'**Evidence:** {esc(project["evidence"])}'
+            for project in supporting
+        )
+        supporting_block = (
+            "\n<details>\n"
+            "<summary>More robotics and edge projects</summary>\n\n"
+            f"{cards}\n"
+            "</details>\n"
+        )
+    links = " · ".join(html_link(link["url"], link["label"]) for link in content["links"])
+    principles = "\n".join(f"- {esc(item)}" for item in content["principles"])
+    metrics_url = f"{RAW_BASE}/metrics.svg?v={esc(metrics_version)}"
+    return f"""# {esc(content['name'])}
+
+<p align="center"><img src="{RAW_BASE}/hero.svg" alt="{esc(content['name'])}, {esc(content['headline'])} focused on retrieval, agents, inference, and robotics in {esc(content['location'])}." width="100%"/></p>
+
+{esc(content['intro'])}
+
+**{esc(content['location'])} · {esc(content['subheadline'])}**
+
+{links}
+
+## Selected work
+
+{featured_table}
+{supporting_block}
+<p align="center"><img src="{RAW_BASE}/evidence.svg" alt="Documented portfolio scope: 12 agent labs, 15 retrieval projects, and a 12-stage inference portfolio; these are repository scope counts, not deployment metrics." width="100%"/></p>
+
+## Live repository signals
+
+<p align="center"><a href="{PAGES_URL}"><strong>Open the interactive portfolio dashboard →</strong></a></p>
+
+<p align="center"><img src="{metrics_url}" alt="Dynamic snapshot of owned public repositories, stars, primary languages, and repositories whose latest push was within 30 days." width="100%"/></p>
+
+<sub>Metrics cover owned public non-fork repositories. The monthly chart counts repositories by their latest push date, not commit volume.</sub>
+
+## How I work
+
+<p align="center"><img src="{RAW_BASE}/approach.svg" alt="Engineering approach: gather context, produce a structured proposal, validate it, then verify with tests or replay." width="100%"/></p>
+
+{principles}
+
+## Areas of focus
+
+**Applied AI:** agent systems · retrieval-augmented generation · inference and serving<br/>
+**Robotics and edge:** ROS 2 · model-to-control boundaries · edge vision · offline replay
+
+The repositories are portfolio projects and reference implementations. Their READMEs describe setup, tests, assumptions, and limitations; no live deployment or business-impact claim is implied.
+
+## Looking for
+
+{esc(content['open_to'])}
+
+---
+
+<sub>Project visuals are generated from `profile-content.json`; live metrics come from public GitHub repository metadata. No third-party stats widgets or tracking badges.</sub>
+"""
 
 
-def lang_colors(repos):
-    ranked = [l for l, _ in Counter(r["language"] for r in repos if r.get("language")).most_common(6)]
-    cmap = {l: PALETTE[i] for i, l in enumerate(ranked)}
-    return ranked, cmap
+def render_all(
+    content: dict[str, Any], metrics_version: str | None = None
+) -> dict[str, str]:
+    validate_content(content)
+    if metrics_version is None:
+        data_path = ROOT / "site" / "src" / "data" / "profile.json"
+        if data_path.exists():
+            try:
+                data = json.loads(data_path.read_text(encoding="utf-8"))
+                metrics_version = re.sub(r"[^0-9TZ]", "", data.get("generatedAt", ""))
+            except (OSError, json.JSONDecodeError):
+                metrics_version = ""
+        metrics_version = metrics_version or "bootstrap"
+    outputs = {
+        "README.md": render_readme(content, metrics_version),
+        "profile/hero.svg": render_hero(content),
+        "profile/evidence.svg": render_evidence(content),
+        "profile/approach.svg": render_approach(content),
+    }
+    for project in content["projects"]:
+        outputs[f"profile/project-{project['id']}.svg"] = render_project_card(project)
+    return outputs
 
 
-# ---------- 1. repository universe ----------
-def universe(repos, ranked, cmap):
-    if not repos:
-        return placeholder("universe.svg", 1200, 580, "Repository universe")
-    lanes = ranked + ["Other"]
-    W, H, left, right, top, bottom = 1200, 580, 270, 1120, 130, 500
-    lane_h = (bottom - top) / len(lanes)
-    created = [pdt(r["created_at"]) for r in repos]
-    t0, t1 = min(created), max(created)
-    span = max((t1 - t0).total_seconds(), 1)
-    counts = Counter((r["language"] if r.get("language") in ranked else "Other") for r in repos)
-    featured = set(FEATURED)
-    body = [txt(48, 52, "Every repository, plotted by when it was created", 24, INK, weight=700),
-            txt(48, 78, f"{len(repos)} public repositories ({sum(1 for r in repos if not r['fork'])} original, "
-                f"{sum(1 for r in repos if r['fork'])} forks). Each dot is one repo.", 14, MUTE, "m")]
-    for y in range(t0.year, t1.year + 1):
-        x = left + (datetime(y, 1, 1, tzinfo=timezone.utc) - t0).total_seconds() / span * (right - left)
-        if left - 5 <= x <= right + 5:
-            body.append(f'<line x1="{x:.0f}" y1="{top - 6}" x2="{x:.0f}" y2="{bottom}" stroke="{GRID}"/>')
-            body.append(txt(x + 6, bottom + 22, y, 13, MUTE, "m"))
-    for i, lane in enumerate(lanes):
-        y = top + lane_h * (i + 0.5)
-        col = cmap.get(lane, SLATE)
-        body.append(f'<line x1="{left - 20}" y1="{y:.0f}" x2="{right}" y2="{y:.0f}" stroke="{GRID}" stroke-dasharray="2 8"/>')
-        body.append(f'<circle cx="52" cy="{y - 4:.0f}" r="5" fill="{col}"/>')
-        body.append(txt(66, y, f"{lane}", 14, SOFT, "m"))
-        body.append(txt(left - 28, y, counts[lane], 14, MUTE, "m", anchor="end"))
-    labels, nodes = [], []
-    for r in repos:
-        lane = r["language"] if r.get("language") in ranked else "Other"
-        i = lanes.index(lane)
-        x = left + (pdt(r["created_at"]) - t0).total_seconds() / span * (right - left) + (hf(r["name"], "x") - .5) * 14
-        y = top + lane_h * (i + .5) + (hf(r["name"], "y") - .5) * lane_h * .7
-        rad = 3.5 + min(8, math.log10(1 + r.get("size", 0)) * 1.8) + min(4, r.get("stargazers_count", 0) * .8)
-        col = cmap.get(lane, SLATE)
-        cls = f"n f{int(hf(r['name'], 'c') * 3)}"
-        delay = f"animation-delay:-{hf(r['name'], 'd') * 7:.1f}s"
-        if r["fork"]:
-            nodes.append(f'<circle class="{cls}" cx="{x:.1f}" cy="{y:.1f}" r="{rad:.1f}" fill="none" stroke="{col}" stroke-width="1.5" style="{delay}"/>')
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if generated README or SVGs differ from the checked-in versions",
+    )
+    args = parser.parse_args()
+    try:
+        outputs = render_all(load_content())
+    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        print(f"Profile generation failed: {exc}", file=sys.stderr)
+        return 1
+    stale = []
+    for relative_path, text in outputs.items():
+        target = ROOT / relative_path
+        if args.check:
+            if not target.exists() or target.read_text(encoding="utf-8") != text:
+                stale.append(relative_path)
         else:
-            nodes.append(f'<circle class="{cls}" cx="{x:.1f}" cy="{y:.1f}" r="{rad:.1f}" fill="{col}" fill-opacity=".85" style="{delay}"/>')
-        if r["name"] in featured:
-            nodes.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{rad + 5:.1f}" fill="none" stroke="{AMBER}" stroke-width="1.5" class="ring"/>')
-            labels.append(txt(x, y - rad - 10, r["name"], 12, INK, "m", anchor="end" if x > 950 else "middle"))
-    body += nodes + labels
-    body.append(f'<circle cx="52" cy="548" r="5" fill="{TEAL}"/>' + txt(66, 553, "original", 13, MUTE, "m")
-                + f'<circle cx="160" cy="548" r="5" fill="none" stroke="{TEAL}" stroke-width="1.5"/>' + txt(174, 553, "fork", 13, MUTE, "m")
-                + f'<circle cx="240" cy="548" r="7" fill="none" stroke="{AMBER}" stroke-width="1.5"/>' + txt(256, 553, "featured", 13, MUTE, "m")
-                + txt(1150, 553, "dot size reflects code size and stars", 13, MUTE, "m", anchor="end"))
-    css = (".n{animation:float 7s ease-in-out infinite alternate}.f1{animation-duration:9s}.f2{animation-duration:11s}"
-           "@keyframes float{from{transform:translateY(-4px)}to{transform:translateY(4px)}}"
-           ".ring{animation:ring 3s ease-in-out infinite}@keyframes ring{50%{stroke-opacity:.25}}")
-    write("universe.svg", svg(W, H, "".join(body), "Every repository plotted by creation date and language", css))
-
-
-# ---------- 2. insights ----------
-def classify(repos):
-    c = Counter()
-    for r in repos:
-        if r["fork"]:
-            continue
-        t = " ".join([r["name"], r.get("description") or "", " ".join(r.get("topics") or [])]).lower().replace("-", " ").replace("_", " ")
-        for dom, words in DOMAINS.items():
-            if any(w in t for w in words):
-                c[dom] += 1
-    return c.most_common()
-
-
-def insights(repos, langbytes, cmap):
-    if not repos:
-        return placeholder("insights.svg", 1200, 420, "Profile insights")
-    own = [r for r in repos if not r["fork"]]
-    forks = [r for r in repos if r["fork"]]
-    now = datetime.now(timezone.utc)
-    active = sum(1 for r in own if now - pdt(r.get("pushed_at") or r["created_at"]) <= timedelta(days=90))
-    years = (now - min(pdt(r["created_at"]) for r in repos)).days / 365.25
-    stars = sum(r["stargazers_count"] for r in own)
-    kpis = [(len(own), "original repositories"), (len(forks), "forked projects"), (stars, "stars earned"),
-            (active, "active in last 90 days"), (f"{years:.1f}", "years on GitHub"),
-            (human_bytes(sum(langbytes.values())) if langbytes else "n/a", "of code and notebooks")]
-    body = [txt(48, 52, "Profile insights", 24, INK, weight=700),
-            txt(48, 78, f"Computed from all {len(repos)} public repositories", 14, MUTE, "m")]
-    for i, (v, lab) in enumerate(kpis):
-        x, y = 48 + (i % 2) * 190, 104 + (i // 2) * 104
-        body.append(f'<rect x="{x}" y="{y}" width="176" height="90" rx="8" fill="{PANEL}" stroke="{LINE}"/>')
-        body.append(txt(x + 16, y + 44, v, 32, INK, weight=700))
-        body.append(txt(x + 16, y + 70, lab, 13, MUTE))
-    # languages by bytes
-    body.append(txt(460, 112, "Languages by code volume", 16, SOFT, weight=600))
-    tot = sum(langbytes.values()) or 1
-    top = langbytes.most_common(7)
-    mx = (top[0][1] / tot) if top else 1
-    for i, (l, b) in enumerate(top):
-        y = 140 + i * 38
-        w = max(4, 150 * (b / tot) / mx)
-        body.append(txt(460, y + 15, l, 13, SOFT, "m"))
-        body.append(f'<rect class="bar" x="620" y="{y}" width="{w:.0f}" height="20" rx="3" fill="{cmap.get(l, SLATE)}" style="animation-delay:{i * .1:.1f}s"/>')
-        body.append(txt(620 + w + 10, y + 15, f"{100 * b / tot:.0f}%", 13, MUTE, "m"))
-    body.append(txt(460, 410, "Notebook outputs count toward Jupyter bytes,", 12, MUTE, "m"))
-    body.append(txt(460, 426, "so notebook-heavy work looks larger here.", 12, MUTE, "m"))
-    # domains
-    body.append(txt(850, 112, "What the repositories are about", 16, SOFT, weight=600))
-    doms = classify(repos)[:7]
-    dm = doms[0][1] if doms else 1
-    for i, (d, n) in enumerate(doms):
-        y = 140 + i * 38
-        w = max(4, 120 * n / dm)
-        body.append(txt(850, y + 15, d, 13, SOFT, "m"))
-        body.append(f'<rect class="bar" x="1010" y="{y}" width="{w:.0f}" height="20" rx="3" fill="{AMBER}" style="animation-delay:{i * .1:.1f}s"/>')
-        body.append(txt(1010 + w + 10, y + 15, n, 13, MUTE, "m"))
-    body.append(txt(850, 410, "Tagged from repo names, descriptions", 12, MUTE, "m"))
-    body.append(txt(850, 426, "and topics; a repo can fit several.", 12, MUTE, "m"))
-    css = ".bar{transform-box:fill-box;transform-origin:left;animation:grow 1s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{transform:scaleX(0)}}"
-    write("insights.svg", svg(1200, 445, "".join(body), "Profile insights across all repositories", css))
-
-
-# ---------- 3. activity ----------
-def activity(repos):
-    if not repos:
-        return placeholder("activity.svg", 1200, 380, "Repository activity")
-    own = [r for r in repos if not r["fork"]]
-    by_year = Counter(pdt(r["created_at"]).year for r in own)
-    ys = list(range(min(by_year), max(by_year) + 1)) if by_year else []
-    mx = max(by_year.values(), default=1)
-    body = [txt(48, 52, "Repositories created per year", 20, INK, weight=700)]
-    bw = min(48, 500 // max(len(ys), 1) - 10)
-    step = bw + 10
-    for i, y in enumerate(ys):
-        n = by_year.get(y, 0)
-        hgt = max(3, 200 * n / mx)
-        x = 56 + i * step
-        body.append(f'<rect class="rise" x="{x}" y="{300 - hgt:.0f}" width="{bw}" height="{hgt:.0f}" rx="3" fill="{TEAL}" style="animation-delay:{i * .08:.2f}s"/>')
-        body.append(txt(x + bw / 2, 292 - hgt, n, 13, SOFT, "m", anchor="middle"))
-        body.append(txt(x + bw / 2, 324, f"’{str(y)[2:]}", 13, MUTE, "m", anchor="middle"))
-    body.append(f'<line x1="48" y1="304" x2="580" y2="304" stroke="{LINE}"/>')
-    body.append(txt(660, 52, "Recently pushed", 20, INK, weight=700))
-    recent = sorted(own, key=lambda r: r.get("pushed_at") or r["created_at"], reverse=True)[:6]
-    cl = {}
-    for i, r in enumerate(recent):
-        y = 100 + i * 42
-        lang = r.get("language") or "n/a"
-        body.append(f'<circle cx="672" cy="{y - 5}" r="5" fill="{TEAL if i else AMBER}" class="{"pulse" if i == 0 else ""}"/>')
-        body.append(txt(692, y, r["name"][:30], 17, INK, weight=600))
-        body.append(txt(692, y + 18, lang, 12, MUTE, "m"))
-        body.append(txt(1152, y, (r.get("pushed_at") or r["created_at"])[:10], 14, MUTE, "m", anchor="end"))
-    css = (".rise{transform-box:fill-box;transform-origin:bottom;animation:r 1s cubic-bezier(.2,.8,.2,1) both}@keyframes r{from{transform:scaleY(0)}}"
-           ".pulse{animation:p 1.8s ease-in-out infinite}@keyframes p{50%{opacity:.3}}")
-    write("activity.svg", svg(1200, 380, "".join(body), "Repository activity", css))
-
-
-# ---------- 4. isometric contribution skyline ----------
-def skyline(weeks, total):
-    A, B, k = (17.5, 4.0), (-8.0, 12.0), 1.0
-    ox, oy, gap = 200, 190, .1
-    days = [(d["date"], d["contributionCount"]) for w in weeks for d in w]
-    mx = max((c for _, c in days), default=0) or 1
-    # streaks
-    best = cur = 0
-    for _, c in days:
-        cur = cur + 1 if c else 0
-        best = max(best, cur)
-    cur = 0
-    for _, c in reversed(days):
-        if c:
-            cur += 1
-        elif cur or _ != days[-1][0]:
-            break
-    busiest = max(days, key=lambda x: x[1], default=("", 0))
-    active = sum(1 for _, c in days if c)
-    cols = [GRID, "#2C6E73", "#3FA3A0", TEAL, "#9BE8E1"]
-    items = []
-    for wi, wk in enumerate(weeks):
-        for di, d in enumerate(wk):
-            items.append((wi * A[1] + di * B[1], wi, di, d["contributionCount"]))
-    items.sort()
-    bars = []
-    for _, wi, di, c in items:
-        lvl = 0 if c == 0 else max(1, min(4, math.ceil(4 * c / mx)))
-        hgt = 2 if c == 0 else 6 + 96 * c / mx
-        px = ox + wi * A[0] + di * B[0]
-        py = oy + wi * A[1] + di * B[1]
-        a = (A[0] * (1 - gap * 2), A[1] * (1 - gap * 2))
-        b = (B[0] * (1 - gap * 2), B[1] * (1 - gap * 2))
-        px += A[0] * gap + B[0] * gap
-        py += A[1] * gap + B[1] * gap
-        P0 = (px, py)
-        P1 = (px + a[0], py + a[1])
-        P2 = (px + a[0] + b[0], py + a[1] + b[1])
-        P3 = (px + b[0], py + b[1])
-        up = lambda p: (p[0], p[1] - hgt)
-        pts = lambda *ps: " ".join(f"{x:.1f},{y:.1f}" for x, y in ps)
-        col = cols[lvl]
-        bars.append(f'<g class="b" style="animation-delay:{wi * .025:.2f}s">'
-                    f'<polygon points="{pts(P3, P2, up(P2), up(P3))}" fill="{shade(col, .78)}"/>'
-                    f'<polygon points="{pts(P1, P2, up(P2), up(P1))}" fill="{shade(col, .58)}"/>'
-                    f'<polygon points="{pts(up(P0), up(P1), up(P2), up(P3))}" fill="{col}"/></g>')
-    body = [txt(48, 52, f"{total:,} contributions in the last year", 26, INK, weight=700),
-            txt(48, 78, f"longest streak {best} days · current streak {cur} · busiest day {busiest[1]} · active on {active} days", 14, MUTE, "m")]
-    body += bars
-    lx = 48
-    body.append(txt(lx, 506, "less", 12, MUTE, "m"))
-    for i, c in enumerate(cols):
-        body.append(f'<rect x="{lx + 38 + i * 18}" y="496" width="12" height="12" rx="2" fill="{c}"/>')
-    body.append(txt(lx + 38 + 5 * 18 + 6, 506, "more", 12, MUTE, "m"))
-    css = ".b{transform-box:fill-box;transform-origin:50% 100%;animation:rise 1.2s cubic-bezier(.2,.8,.2,1) both}@keyframes rise{from{transform:scaleY(0)}}"
-    write("skyline.svg", svg(1200, 520, "".join(body), f"{total} contributions in the last year as an isometric skyline", css))
-
-
-# ---------- 5. project cards ----------
-def cards(repos, langper):
-    byname = {r["name"]: r for r in repos}
-    for name, fallback in FEATURED.items():
-        r = byname.get(name, {})
-        desc = r.get("description") or fallback
-        lines = textwrap.wrap(desc, 50)[:3]
-        topics = (r.get("topics") or [])[:3]
-        stars = r.get("stargazers_count", "–")
-        pushed = (r.get("pushed_at") or "")[:10] or "–"
-        main_lang = r.get("language") or "–"
-        lb = langper.get(name, {})
-        tot = sum(lb.values())
-        W, Hh = 560, 210
-        p = [f'<defs><clipPath id="c"><rect width="{W}" height="{Hh}" rx="10"/></clipPath>'
-             f'<linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="{TEAL}" stop-opacity="0"/><stop offset=".5" stop-color="{TEAL}"/>'
-             f'<stop offset="1" stop-color="{TEAL}" stop-opacity="0"/></linearGradient></defs>',
-             f'<g clip-path="url(#c)"><rect width="{W}" height="{Hh}" fill="{PANEL}"/><rect class="sweep" width="240" height="3" fill="url(#g)"/>']
-        if tot:
-            x = 0
-            for i, (l, b) in enumerate(sorted(lb.items(), key=lambda kv: -kv[1])[:5]):
-                w = W * b / tot
-                p.append(f'<rect x="{x:.1f}" y="{Hh - 6}" width="{w:.1f}" height="6" fill="{PALETTE[i % 6]}"/>')
-                x += w
-        p.append("</g>")
-        p.append(f'<rect x=".5" y=".5" width="{W - 1}" height="{Hh - 1}" rx="10" fill="none" stroke="{LINE}"/>')
-        p.append(txt(28, 48, name, 22, INK, weight=700))
-        for i, ln in enumerate(lines):
-            p.append(txt(28, 80 + i * 24, ln, 16, SOFT))
-        cx = 28
-        for t in topics:
-            w = len(t) * 8 + 20
-            p.append(f'<rect x="{cx}" y="140" width="{w}" height="22" rx="11" fill="none" stroke="{LINE}"/>' + txt(cx + w / 2, 155, t, 12, MUTE, "m", anchor="middle"))
-            cx += w + 8
-        p.append(f'<circle cx="34" cy="184" r="5" fill="{AMBER}"/>' + txt(48, 189, main_lang, 14, MUTE, "m")
-                 + txt(230, 189, f"★ {stars}", 14, MUTE, "m") + txt(W - 28, 189, f"pushed {pushed}", 14, MUTE, "m", anchor="end"))
-        css = ".sweep{animation:sw 5s ease-in-out infinite}@keyframes sw{from{transform:translateX(-240px)}to{transform:translateX(560px)}}"
-        out = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {Hh}" role="img" aria-label="{esc(name)}">'
-               f"<style>{BASE_CSS}{css}</style>{''.join(p)}</svg>")
-        write(f"card-{name}.svg", out)
-
-
-# ---------- 6. ticker, toolbox, wave footer, loop ----------
-def marquee(repos):
-    langs = [l for l, _ in Counter(r["language"] for r in repos if r.get("language")).most_common(6)]
-    topics = [t for t, _ in Counter(t for r in repos for t in (r.get("topics") or [])).most_common(10)]
-    items, seen = [], set()
-    for t in ["Python", "PyTorch", "vLLM", "LangGraph", "RAG", "ROS 2", "OpenCV", "ONNX Runtime", "TensorRT", "Triton", "MQTT", "Docker", "AWS", "Azure"] + langs + topics:
-        if t.lower() not in seen:
-            seen.add(t.lower())
-            items.append(t)
-    size, gap = 17, 56
-    widths = [int(len(t) * size * .62) + gap for t in items]
-    period = sum(widths)
-
-    def row(off):
-        x, out = off, []
-        for t, w in zip(items, widths):
-            out.append(txt(x, 38, t, size, SOFT, "m") + f'<circle cx="{x + w - gap / 2}" cy="32" r="2.5" fill="{AMBER}"/>')
-            x += w
-        return "".join(out)
-    body = ('<defs><linearGradient id="f" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".08" stop-color="#fff"/>'
-            '<stop offset=".92" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
-            '<mask id="m"><rect width="1200" height="60" fill="url(#f)"/></mask></defs>'
-            f'<g mask="url(#m)"><g class="t">{row(0)}{row(period)}{row(2 * period)}</g></g>')
-    css = f".t{{animation:run {period / 55:.1f}s linear infinite}}@keyframes run{{to{{transform:translateX(-{period}px)}}}}"
-    write("marquee.svg", svg(1200, 60, body, "Tools and topics across my repositories", css))
-
-
-def toolbox():
-    body, y, idx = [], 40, 0
-    for grp, items in TOOLBOX.items():
-        body.append(txt(48, y, grp, 16, SOFT, weight=600))
-        x, row_y = 48, y + 18
-        for t in items:
-            w = len(t) * 9.4 + 34
-            if x + w > 1150:
-                x, row_y = 48, row_y + 44
-            body.append(f'<g class="chip" style="animation-delay:{idx * .06:.2f}s"><rect x="{x:.0f}" y="{row_y}" width="{w:.0f}" height="34" rx="17" fill="{PANEL}" stroke="{LINE}"/>'
-                        f'<circle class="dot" cx="{x + 17:.0f}" cy="{row_y + 17}" r="3.5" fill="{TEAL}" style="animation-delay:{(idx % 7) * .4:.1f}s"/>'
-                        + txt(x + 29, row_y + 22, t, 14, INK, "m") + "</g>")
-            x += w + 10
-            idx += 1
-        y = row_y + 34 + 38
-    css = (".chip{animation:in .8s cubic-bezier(.2,.8,.2,1) both}@keyframes in{from{opacity:0;transform:translateY(10px)}}"
-           ".dot{animation:d 3s ease-in-out infinite}@keyframes d{50%{opacity:.25}}")
-    write("toolbox.svg", svg(1200, y - 10, "".join(body), "Toolbox: languages, AI/ML, robotics and systems", css))
-
-
-def footer():
-    def wave(amp, off):
-        d = f"M0 {60 + off} " + " ".join(f"Q{150 + i * 300} {60 + off - amp * (1 if i % 2 == 0 else -1)} {300 + i * 300} {60 + off}" for i in range(8))
-        return d + " V120 H0 Z"
-    body = (f'<g class="w1"><path d="{wave(18, 0)}" fill="{TEAL}" fill-opacity=".10"/></g>'
-            f'<g class="w2"><path d="{wave(14, 12)}" fill="{TEAL}" fill-opacity=".16"/></g>'
-            f'<g class="w3"><path d="{wave(10, 24)}" fill="{TEAL}" fill-opacity=".25"/></g>')
-    css = ("@keyframes a{to{transform:translateX(-1200px)}}.w1{animation:a 18s linear infinite}.w2{animation:a 12s linear infinite}.w3{animation:a 8s linear infinite}")
-    write("footer.svg", svg(1200, 120, body, "", css))
-
-
-def hero_and_loop():
-    pass  # static files shipped alongside this script
-
-
-# ---------- main ----------
-def main():
-    try:
-        repos = all_repos()
-    except Exception:
-        if not SEED:
-            raise
-        repos = []
-    ranked, cmap = lang_colors(repos)
-    langper, langtotal = ({}, Counter())
-    if repos:
-        langper, langtotal = repo_languages(repos)
-    universe(repos, ranked, cmap)
-    insights(repos, langtotal, cmap)
-    activity(repos)
-    cards(repos, langper)
-    marquee(repos)
-    toolbox()
-    footer()
-    try:
-        weeks, total = contributions()
-        skyline(weeks, total)
-    except Exception:
-        if not os.path.exists(os.path.join(OUT, "skyline.svg")) or SEED:
-            empty = [[{"date": f"2026-01-{(d % 28) + 1:02d}", "contributionCount": 0} for d in range(7)] for _ in range(53)]
-            skyline(empty, 0)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(text, encoding="utf-8")
+    if stale:
+        print("Generated files are out of date: " + ", ".join(stale), file=sys.stderr)
+        print("Run: python scripts/build_profile.py", file=sys.stderr)
+        return 1
+    if args.check:
+        print(f"Profile output is current ({len(outputs)} generated files checked).")
+    else:
+        print(f"Generated {len(outputs)} profile files.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

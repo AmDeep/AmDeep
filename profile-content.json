@@ -1,0 +1,115 @@
+{
+  "name": "Amardeep Singh",
+  "username": "AmDeep",
+  "location": "Toronto, Canada",
+  "headline": "Applied AI engineer",
+  "subheadline": "Retrieval · agent systems · inference · robotics",
+  "intro": "I build AI systems that are easier to inspect, test, and trust—from retrieval and agent workflows to bounded robotics interfaces.",
+  "open_to": "Interested in applied AI, retrieval, inference, and robotics problems where reliability matters.",
+  "links": [
+    {
+      "label": "GitHub",
+      "url": "https://github.com/AmDeep"
+    },
+    {
+      "label": "Omdena",
+      "url": "https://www.omdena.com/"
+    }
+  ],
+  "principles": [
+    "Keep model outputs structured and inspectable.",
+    "Validate proposals before they cross a tool or actuator boundary.",
+    "Use tests, replayable examples, and explicit limitations as evidence."
+  ],
+  "projects": [
+    {
+      "id": "agent-systems",
+      "name": "Agent Systems Labs",
+      "repo": "AIAgents",
+      "url": "https://github.com/AmDeep/AIAgents",
+      "category": "Agent systems",
+      "scope": "12 independent Python labs",
+      "summary": "Runnable patterns for reliable agent systems, organized as independent packages.",
+      "evidence": "Per-lab tests, architecture notes, and demo evidence.",
+      "featured": true,
+      "color": "#55D6BE"
+    },
+    {
+      "id": "retrieval-labs",
+      "name": "RAG Systems Labs",
+      "repo": "RAGSystemLabs",
+      "url": "https://github.com/AmDeep/RAGSystemLabs",
+      "category": "Retrieval",
+      "scope": "15 focused projects",
+      "summary": "Retrieval engineering experiments that make system choices easier to compare.",
+      "evidence": "Local fixtures, tests, and injectable model/service dependencies.",
+      "featured": true,
+      "color": "#82A8FF"
+    },
+    {
+      "id": "inference-portfolio",
+      "name": "Inference Systems Portfolio",
+      "repo": "inference-serving-portfolio",
+      "url": "https://github.com/AmDeep/inference-serving-portfolio",
+      "category": "Inference",
+      "scope": "12-stage portfolio",
+      "summary": "Inference and serving patterns paired with reproducible experiments.",
+      "evidence": "Benchmark evidence, assumptions, limitations, and follow-up work.",
+      "featured": true,
+      "color": "#FFB86B"
+    },
+    {
+      "id": "ros2-navigation",
+      "name": "ROS 2 + vLLM Navigation Bridge",
+      "repo": "ros2-vllm-navigation-bridge",
+      "url": "https://github.com/AmDeep/ros2-vllm-navigation-bridge",
+      "category": "Robotics",
+      "scope": "Semantic planning · bounded control",
+      "summary": "Turns a mission into structured waypoints for a deterministic local controller.",
+      "evidence": "Bounded Twist output and replay-focused safety checks.",
+      "featured": true,
+      "color": "#D69BFF"
+    },
+    {
+      "id": "manipulation-gateway",
+      "name": "Manipulation Safety Gateway",
+      "repo": "manipulation-vllm-safety-gateway",
+      "url": "https://github.com/AmDeep/manipulation-vllm-safety-gateway",
+      "category": "Robotics",
+      "scope": "Typed targets · explicit rejection",
+      "summary": "A robot-arm planning boundary for validating proposed joint targets.",
+      "evidence": "Out-of-limit proposals are rejected; actuator limits remain deterministic.",
+      "featured": false,
+      "color": "#FF8295"
+    },
+    {
+      "id": "edge-vision",
+      "name": "Edge Vision Inspector",
+      "repo": "edge-vision-vllm-inspector",
+      "url": "https://github.com/AmDeep/edge-vision-vllm-inspector",
+      "category": "Edge vision",
+      "scope": "Edge capture · offline replay",
+      "summary": "An inspection pipeline that keeps capture metadata and robot state explicit.",
+      "evidence": "Semantic interpretation is optional; replay runs without a live model.",
+      "featured": false,
+      "color": "#FFC857"
+    }
+  ],
+  "evidence_metrics": [
+    {
+      "value": "12",
+      "label": "AGENT LABS",
+      "note": "AIAgents"
+    },
+    {
+      "value": "15",
+      "label": "RETRIEVAL PROJECTS",
+      "note": "RAGSystemLabs"
+    },
+    {
+      "value": "12",
+      "label": "INFERENCE STAGES",
+      "note": "inference-serving-portfolio"
+    }
+  ]
+}

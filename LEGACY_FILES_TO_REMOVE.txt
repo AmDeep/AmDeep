@@ -1,0 +1,36 @@
+Remove these obsolete files after copying the replacement:
+
+.github/workflows/auto-update-metrics.yml
+profile-assets.yml
+refresh-profile.yml
+snake.yml
+build_profile.py
+build_assets.py
+render_metrics.py
+test_render_metrics.py
+scripts/render_metrics.py
+assets/
+
+Remove old duplicate/generated root-level SVGs:
+activity.svg
+ai-ecosystem (1).svg
+ai-ecosystem.svg
+card-AIAgents.svg
+card-edge-vision-vllm-inspector.svg
+card-inference-serving-portfolio.svg
+card-manipulation-vllm-safety-gateway.svg
+card-RAGSystemLabs.svg
+card-ros2-vllm-navigation-bridge.svg
+footer.svg
+hero.svg
+insights.svg
+loop.svg
+marquee.svg
+metrics.svg
+profile-banner (2).svg
+profile-banner.svg
+skyline.svg
+toolbox.svg
+universe.svg
+
+Replace all existing contents of the old `profile/` directory with the `profile/` files in this archive. This intentionally removes old waiting-state dashboards, the zero-contribution skyline, and unreferenced duplicate images.
