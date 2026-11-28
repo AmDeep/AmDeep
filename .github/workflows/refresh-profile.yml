@@ -1,0 +1,96 @@
+name: Refresh live profile metrics and dashboard
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "profile-content.json"
+      - "profile/**"
+      - "scripts/**"
+      - "site/**"
+      - ".github/workflows/refresh-profile.yml"
+  repository_dispatch:
+    types: [profile-refresh]
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: profile-data-refresh-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      changed: ${{ steps.metrics.outputs.changed }}
+    steps:
+      - name: Check out profile repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Collect public repository metadata
+        id: metrics
+        env:
+          PROFILE_USERNAME: AmDeep
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python scripts/fetch_profile_metrics.py
+      - name: Run data and SVG tests
+        run: python -m unittest discover -s tests -v
+      - name: Commit changed snapshot and profile visuals
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md profile/*.svg site/src/data/profile.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(profile): refresh public metrics"
+            git push origin HEAD:main
+          fi
+
+  deploy:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out refreshed profile
+        uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install dashboard dependencies
+        working-directory: site
+        run: npm ci --no-audit --fund=false
+      - name: Test dashboard interactions
+        working-directory: site
+        run: npm test
+      - name: Build dashboard
+        working-directory: site
+        run: npm run build
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload dashboard artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site/dist
+      - name: Deploy dashboard
+        id: deployment
+        uses: actions/deploy-pages@v4

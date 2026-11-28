@@ -1,0 +1,59 @@
+name: Validate profile README and visuals
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "README.md"
+      - "profile-content.json"
+      - "profile/**"
+      - "scripts/**"
+      - "tests/**"
+      - "site/**"
+      - ".github/workflows/validate-profile.yml"
+      - ".github/workflows/refresh-profile.yml"
+  pull_request:
+    paths:
+      - "README.md"
+      - "profile-content.json"
+      - "profile/**"
+      - "scripts/**"
+      - "tests/**"
+      - "site/**"
+      - ".github/workflows/validate-profile.yml"
+      - ".github/workflows/refresh-profile.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+      - name: Confirm generated files are current
+        run: python scripts/build_profile.py --check
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - name: Install dashboard dependencies
+        working-directory: site
+        run: npm ci --no-audit --fund=false
+      - name: Test dashboard interactions
+        working-directory: site
+        run: npm test
+      - name: Type-check and build dashboard
+        working-directory: site
+        run: npm run build
