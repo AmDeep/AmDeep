@@ -1,23 +1,37 @@
-import { lazy, Suspense, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import {
   Activity,
   ArrowDown,
+  ArrowRight,
   ArrowUpRight,
   Bot,
   Boxes,
   Code2,
+  Command,
+  Copy,
   Database,
   ExternalLink,
   GitFork,
   GitBranch,
+  Menu,
+  Pause,
+  Play,
   Search,
   Star,
   Waypoints,
   Workflow,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { motion, useReducedMotion } from "motion/react";
+import {
+  AnimatePresence,
+  MotionConfig,
+  motion,
+  useReducedMotion,
+  useScroll,
+} from "motion/react";
+import { caseStudies } from "./data/caseStudies";
 import profileData from "./data/profile.json";
 import type {
   PortfolioData,
@@ -29,6 +43,98 @@ const ActivityCharts = lazy(() => import("./ActivityCharts"));
 const data = profileData as PortfolioData;
 const ranges = [7, 30, 90] as const;
 type RangeDays = (typeof ranges)[number];
+type DialogState =
+  | { kind: "palette" }
+  | { kind: "project"; project: PortfolioProject }
+  | null;
+
+type PaletteCommand =
+  | {
+      id: string;
+      kind: "section";
+      title: string;
+      description: string;
+      target: string;
+    }
+  | {
+      id: string;
+      kind: "project";
+      title: string;
+      description: string;
+      project: PortfolioProject;
+    };
+
+type SystemStage = {
+  id: string;
+  label: string;
+  description: string;
+  category: string;
+};
+
+const systemStages: SystemStage[] = [
+  {
+    id: "context",
+    label: "Context",
+    description: "Retrieval examples keep source metadata and evidence visible.",
+    category: "Retrieval",
+  },
+  {
+    id: "proposal",
+    label: "Proposal",
+    description: "Agent labs make tool contracts and failure boundaries runnable.",
+    category: "Agent systems",
+  },
+  {
+    id: "validation",
+    label: "Validation",
+    description: "Schemas, limits, and postconditions gate model proposals.",
+    category: "Robotics",
+  },
+  {
+    id: "action",
+    label: "Bounded action",
+    description: "Deterministic controllers—not the model—own the final action.",
+    category: "Robotics",
+  },
+];
+
+const sectionCommands = [
+  {
+    id: "section-work",
+    kind: "section" as const,
+    title: "Selected work",
+    description: "Open the six verified project deep-dives.",
+    target: "work",
+  },
+  {
+    id: "section-principles",
+    kind: "section" as const,
+    title: "Engineering approach",
+    description: "Inspect the principles behind the projects.",
+    target: "principles",
+  },
+  {
+    id: "section-signals",
+    kind: "section" as const,
+    title: "Live repository signals",
+    description: "Review the refreshed public GitHub snapshot.",
+    target: "signals",
+  },
+  {
+    id: "section-repositories",
+    kind: "section" as const,
+    title: "Repository explorer",
+    description: "Search and filter the public repository list.",
+    target: "repositories",
+  },
+  {
+    id: "section-contact",
+    kind: "section" as const,
+    title: "Contact on LinkedIn",
+    description: "Open the direct hiring and collaboration link.",
+    target: "contact",
+  },
+];
 
 const iconForCategory: Record<string, LucideIcon> = {
   "Agent systems": Bot,
@@ -36,6 +142,13 @@ const iconForCategory: Record<string, LucideIcon> = {
   Inference: Workflow,
   Robotics: Waypoints,
   "Edge vision": Boxes,
+};
+
+const iconForStage: Record<string, LucideIcon> = {
+  context: Database,
+  proposal: Bot,
+  validation: Code2,
+  action: Waypoints,
 };
 
 const formatNumber = new Intl.NumberFormat("en-CA");
@@ -98,11 +211,77 @@ function StatCard({
   );
 }
 
-function ProjectCard({ project, index }: { project: PortfolioProject; index: number }) {
+const architectureLabels: Record<string, string[]> = {
+  "agent-systems": ["REQUEST", "POLICY", "TOOL", "VERIFY"],
+  "retrieval-labs": ["QUERY", "RETRIEVE", "RERANK", "CITE"],
+  "inference-portfolio": ["LOAD", "BATCH", "CACHE", "SERVE"],
+  "ros2-navigation": ["MISSION", "WAYPOINT", "GUARD", "CONTROL"],
+  "manipulation-gateway": ["TARGET", "LIMITS", "DRY RUN", "EXECUTE"],
+  "edge-vision": ["FRAME", "METADATA", "SAFETY", "INSPECT"],
+};
+
+function ProjectArtwork({ project }: { project: PortfolioProject }) {
+  const labels = architectureLabels[project.id] ?? ["INPUT", "PROCESS", "CHECK", "OUTPUT"];
+  const gradientId = `project-glow-${project.id}`;
+  const accent = project.color || "#5ed9c5";
+
+  return (
+    <div
+      className="project-card__artwork"
+      style={{ "--project-accent": accent } as CSSProperties}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 600 150" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stopColor={accent} stopOpacity=".17" />
+            <stop offset="1" stopColor="#0d1721" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        <rect width="600" height="150" rx="16" fill="#101b27" />
+        <rect width="600" height="150" rx="16" fill={`url(#${gradientId})`} />
+        <path className="artwork-path" d="M 68 64 H 532" />
+        {labels.map((label, index) => {
+          const x = 68 + index * 154.7;
+          return (
+            <g key={label}>
+              <circle className="artwork-node-halo" cx={x} cy="64" r="27" />
+              <circle className="artwork-node" cx={x} cy="64" r="20" />
+              <text className="artwork-node-number" x={x} y="68">
+                {String(index + 1).padStart(2, "0")}
+              </text>
+              <text className="artwork-node-label" x={x} y="113">
+                {label}
+              </text>
+            </g>
+          );
+        })}
+        <circle className="artwork-signal" cx="68" cy="64" r="3" />
+      </svg>
+    </div>
+  );
+}
+
+function ProjectCard({
+  project,
+  index,
+  onOpen,
+}: {
+  project: PortfolioProject;
+  index: number;
+  onOpen: (project: PortfolioProject) => void;
+}) {
   const Icon = iconForCategory[project.category] ?? Code2;
+  const detail = caseStudies[project.id];
   return (
     <Reveal delay={(index % 3) * 0.06}>
-      <article className="project-card">
+      <motion.article
+        className="project-card"
+        id={`project-${project.id}`}
+        layout
+        transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {detail && <ProjectArtwork project={project} />}
         <div className="project-card__head">
           <span className="project-card__icon">
             <Icon aria-hidden="true" size={19} />
@@ -129,6 +308,14 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
           <span className="proof-label">Evidence</span>
           <p>{project.evidence}</p>
         </div>
+        <button
+          className="project-card__deep-dive"
+          type="button"
+          onClick={() => onOpen(project)}
+          aria-label={`Open technical case study for ${project.name}`}
+        >
+          Technical case study <ArrowRight aria-hidden="true" size={15} />
+        </button>
         <div className="project-card__footer">
           {project.language && <span>{project.language}</span>}
           <span>
@@ -136,7 +323,7 @@ function ProjectCard({ project, index }: { project: PortfolioProject; index: num
           </span>
           <span className="repo-date">Pushed {formatDate(project.pushedAt)}</span>
         </div>
-      </article>
+      </motion.article>
     </Reveal>
   );
 }
@@ -180,7 +367,16 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
   const [language, setLanguage] = useState("All languages");
   const [sortBy, setSortBy] = useState("recent");
   const [visibleCount, setVisibleCount] = useState(12);
+  const [dialog, setDialog] = useState<DialogState>(null);
+  const [paletteQuery, setPaletteQuery] = useState("");
+  const [activeCommand, setActiveCommand] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeStageId, setActiveStageId] = useState("validation");
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [copyFeedback, setCopyFeedback] = useState("");
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll();
   const snapshot = dataset.snapshot;
 
   const categories = useMemo(
@@ -202,6 +398,27 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
     [dataset.snapshot.languages],
   );
 
+  const paletteCommands = useMemo<PaletteCommand[]>(
+    () => [
+      ...sectionCommands,
+      ...dataset.projects.map((project) => ({
+        id: `project-${project.id}`,
+        kind: "project" as const,
+        title: project.name,
+        description: `${project.category} · ${project.scope}`,
+        project,
+      })),
+    ],
+    [dataset.projects],
+  );
+  const matchedCommands = useMemo(() => {
+    const query = paletteQuery.trim().toLocaleLowerCase();
+    if (!query) return paletteCommands;
+    return paletteCommands.filter((command) =>
+      `${command.title} ${command.description}`.toLocaleLowerCase().includes(query),
+    );
+  }, [paletteCommands, paletteQuery]);
+
   const filteredRepositories = useMemo(() => {
     const query = search.trim().toLocaleLowerCase();
     const rows = dataset.repositories.filter((repo) => {
@@ -209,7 +426,8 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
         !query ||
         repo.name.toLocaleLowerCase().includes(query) ||
         repo.description.toLocaleLowerCase().includes(query) ||
-        (repo.topics ?? []).some((topic) => topic.toLocaleLowerCase().includes(query));
+        (repo.topics ?? []).some((topic) => topic.toLocaleLowerCase().includes(query)) ||
+        (repo.language ?? "").toLocaleLowerCase().includes(query);
       const matchesLanguage = language === "All languages" || repo.language === language;
       return matchesQuery && matchesLanguage;
     });
@@ -236,8 +454,91 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
     timeZone: "UTC",
   }).format(generatedAt);
 
+  const activeStage =
+    systemStages.find((stage) => stage.id === activeStageId) ?? systemStages[2];
+  const selectedProject = dialog?.kind === "project" ? dialog.project : null;
+  const selectedCase = selectedProject ? caseStudies[selectedProject.id] : undefined;
+
+  useEffect(() => {
+    const node = dialogRef.current;
+    if (!node) return;
+
+    if (dialog) {
+      if (!node.open) node.showModal();
+      requestAnimationFrame(() => {
+        const selector =
+          dialog.kind === "palette" ? "[data-palette-input]" : "[data-dialog-title]";
+        node.querySelector<HTMLElement>(selector)?.focus();
+      });
+    } else if (node.open) {
+      node.close();
+    }
+  }, [dialog]);
+
+  useEffect(() => {
+    const onGlobalKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLocaleLowerCase() === "k") {
+        event.preventDefault();
+        setPaletteQuery("");
+        setActiveCommand(0);
+        setDialog({ kind: "palette" });
+      }
+    };
+    window.addEventListener("keydown", onGlobalKeyDown);
+    return () => window.removeEventListener("keydown", onGlobalKeyDown);
+  }, []);
+
+  useEffect(() => {
+    setActiveCommand(0);
+  }, [paletteQuery]);
+
+  const chooseCommand = (command: PaletteCommand) => {
+    if (command.kind === "project") {
+      setDialog({ kind: "project", project: command.project });
+      return;
+    }
+    setDialog(null);
+    setMobileMenuOpen(false);
+    document.getElementById(command.target)?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
+  const selectSystemStage = (stage: SystemStage) => {
+    setActiveStageId(stage.id);
+    setSelectedCategory(stage.category);
+  };
+
+  const showRelatedWork = () => {
+    document.getElementById("work")?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  };
+
+  const copyProjectLink = async (project: PortfolioProject) => {
+    const link = `${window.location.origin}${window.location.pathname}#project-${project.id}`;
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopyFeedback("Case-study link copied.");
+    } catch {
+      setCopyFeedback("Clipboard access is unavailable in this browser.");
+    }
+  };
+
   return (
-    <div className="app-shell" id="top">
+    <MotionConfig reducedMotion="user">
+    <div
+      className="app-shell"
+      id="top"
+      data-motion-paused={motionPaused}
+    >
+      <motion.div
+        className="scroll-progress"
+        style={{ scaleX: scrollYProgress }}
+        aria-hidden="true"
+      />
       <div className="ambient ambient--one" aria-hidden="true" />
       <div className="ambient ambient--two" aria-hidden="true" />
       <header className="site-header">
@@ -245,19 +546,58 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
           <span className="wordmark__mark">A</span>
           <span>AMDEEP<span className="wordmark__dot">.</span></span>
         </a>
-        <nav className="main-nav" aria-label="Main navigation">
-          <a href="#work">Selected work</a>
-          <a href="#signals">Live signals</a>
-          <a href="#repositories">Repository explorer</a>
-        </nav>
-        <a
-          className="header-link"
-          href="https://github.com/AmDeep"
-          target="_blank"
-          rel="noreferrer"
+        <nav
+          className={`main-nav${mobileMenuOpen ? " is-open" : ""}`}
+          id="main-navigation"
+          aria-label="Main navigation"
         >
-          GitHub <ArrowUpRight aria-hidden="true" size={15} />
-        </a>
+          <a href="#work" onClick={() => setMobileMenuOpen(false)}>Selected work</a>
+          <a href="#signals" onClick={() => setMobileMenuOpen(false)}>Live signals</a>
+          <a href="#repositories" onClick={() => setMobileMenuOpen(false)}>Repository explorer</a>
+          <a href="#contact" onClick={() => setMobileMenuOpen(false)}>Contact</a>
+        </nav>
+        <div className="header-actions">
+          <button
+            className="mobile-menu-trigger"
+            type="button"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="main-navigation"
+            aria-label={mobileMenuOpen ? "Close section navigation" : "Open section navigation"}
+            onClick={() => setMobileMenuOpen((open) => !open)}
+          >
+            {mobileMenuOpen ? <X aria-hidden="true" size={17} /> : <Menu aria-hidden="true" size={17} />}
+            <span>{mobileMenuOpen ? "Close" : "Menu"}</span>
+          </button>
+          <button
+            className="palette-trigger"
+            type="button"
+            aria-label="Open project and section search. Keyboard shortcut Control or Command K."
+            onClick={() => {
+              setPaletteQuery("");
+              setDialog({ kind: "palette" });
+            }}
+          >
+            <Search aria-hidden="true" size={15} />
+            <span>Jump to</span>
+            <kbd><Command aria-hidden="true" size={11} /> K</kbd>
+          </button>
+          <a
+            className="header-link"
+            href="https://github.com/AmDeep"
+            target="_blank"
+            rel="noreferrer"
+          >
+            GitHub <ArrowUpRight aria-hidden="true" size={15} />
+          </a>
+          <a
+            className="header-link header-link--contact"
+            href="https://www.linkedin.com/in/a-s-70a471a3/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            LinkedIn <ArrowUpRight aria-hidden="true" size={15} />
+          </a>
+        </div>
       </header>
 
       <main>
@@ -289,6 +629,14 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
               >
                 <GitBranch aria-hidden="true" size={16} /> GitHub profile
               </a>
+              <a
+                className="button button--quiet"
+                href="https://www.linkedin.com/in/a-s-70a471a3/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Connect on LinkedIn <ArrowUpRight aria-hidden="true" size={15} />
+              </a>
             </div>
             <div className="hero__focus">
               <span>FOCUS</span>
@@ -297,8 +645,8 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
           </div>
           <motion.div
             className="hero-visual"
-            role="img"
-            aria-label="Diagram showing a model proposal passing through validation before bounded action"
+            role="group"
+            aria-label="Interactive model-to-action system diagram"
             initial={reduced ? false : { opacity: 0, scale: 0.96 }}
             animate={reduced ? undefined : { opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -309,32 +657,105 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
               <Workflow aria-hidden="true" size={29} />
               <span>MODEL<br />TO ACTION</span>
             </div>
-            <div className="visual-node visual-node--top">
-              <span className="visual-node__icon"><Database aria-hidden="true" size={15} /></span>
-              CONTEXT
-            </div>
-            <div className="visual-node visual-node--right">
-              <span className="visual-node__icon"><Code2 aria-hidden="true" size={15} /></span>
-              VALIDATION
-            </div>
-            <div className="visual-node visual-node--bottom">
-              <span className="visual-node__icon"><Waypoints aria-hidden="true" size={15} /></span>
-              BOUNDED ACTION
-            </div>
-            <div className="visual-node visual-node--left">
-              <span className="visual-node__icon"><Bot aria-hidden="true" size={15} /></span>
-              PROPOSAL
+            <div className="visual-stages" role="group" aria-label="Select a system stage">
+              {systemStages.map((stage) => {
+                const Icon = iconForStage[stage.id] ?? Code2;
+                const position = {
+                  context: "top",
+                  validation: "right",
+                  action: "bottom",
+                  proposal: "left",
+                }[stage.id];
+                return (
+                  <button
+                    key={stage.id}
+                    className={`visual-node visual-node--${position}${activeStageId === stage.id ? " is-active" : ""}`}
+                    type="button"
+                    aria-pressed={activeStageId === stage.id}
+                    onClick={() => selectSystemStage(stage)}
+                  >
+                    <span className="visual-node__icon"><Icon aria-hidden="true" size={15} /></span>
+                    {stage.label}
+                  </button>
+                );
+              })}
             </div>
             <div className="visual-signal" aria-hidden="true" />
-            <div className="visual-caption">A recurring design pattern<br />across selected projects</div>
+            <div className="visual-caption">
+              <p aria-live="polite">{activeStage.description}</p>
+              <button type="button" onClick={showRelatedWork}>
+                Explore {activeStage.category} work <ArrowRight aria-hidden="true" size={13} />
+              </button>
+            </div>
+            <button
+              className="motion-toggle"
+              type="button"
+              aria-pressed={motionPaused}
+              onClick={() => setMotionPaused((paused) => !paused)}
+            >
+              {motionPaused ? <Play aria-hidden="true" size={13} /> : <Pause aria-hidden="true" size={13} />}
+              {motionPaused ? "Play motion" : "Pause motion"}
+            </button>
           </motion.div>
+        </section>
+
+        <section className="work section-wrap" id="work" aria-labelledby="work-title">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">SELECTED WORK</p>
+              <h2 id="work-title">Systems with inspectable decisions.</h2>
+            </div>
+            <p className="section-aside">
+              Six code-first case studies. Open the implementation, inspect the evidence, and see where each result stops.
+            </p>
+          </div>
+          <div className="filter-row" role="group" aria-label="Filter featured projects">
+            {categories.map((category) => (
+              <button
+                key={category}
+                type="button"
+                className={`filter-chip ${selectedCategory === category ? "is-active" : ""}`}
+                aria-pressed={selectedCategory === category}
+                onClick={() => setSelectedCategory(category)}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+          <motion.div className="project-grid" layout>
+            {visibleProjects.map((project, index) => (
+              <ProjectCard
+                key={project.id}
+                project={project}
+                index={index}
+                onOpen={(selected) => setDialog({ kind: "project", project: selected })}
+              />
+            ))}
+          </motion.div>
+          {visibleProjects.length === 0 && (
+            <p className="empty-state">No featured projects match this filter.</p>
+          )}
+        </section>
+
+        <section className="principles section-wrap" aria-labelledby="principles-title">
+          <div className="principles-card">
+            <div className="principles-card__intro">
+              <p className="eyebrow">ENGINEERING APPROACH</p>
+              <h2 id="principles-title">A model can propose.<br /><span>Systems still need proof.</span></h2>
+            </div>
+            <div className="principle-list">
+              <div><span>01</span><p>Keep model output structured and inspectable.</p></div>
+              <div><span>02</span><p>Validate proposals before tool or actuator boundaries.</p></div>
+              <div><span>03</span><p>Use tests, replay, and explicit limitations as evidence.</p></div>
+            </div>
+          </div>
         </section>
 
         <section className="metrics section-wrap" id="signals" aria-labelledby="signals-title">
           <div className="section-heading">
             <div>
               <p className="eyebrow">LIVE REPOSITORY SIGNALS</p>
-              <h2 id="signals-title">Proof that updates with the work.</h2>
+              <h2 id="signals-title">Activity, with the definition attached.</h2>
             </div>
             <div className="freshness">
               <span className="freshness__dot" />
@@ -372,62 +793,30 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
             />
           </div>
 
+          <div className="metric-controls">
+            <span>Recent repository pushes</span>
+            <div className="segmented-control" role="group" aria-label="Recent-push summary window">
+              {ranges.map((range) => (
+                <button
+                  key={range}
+                  type="button"
+                  aria-pressed={rangeDays === range}
+                  onClick={() => setRangeDays(range)}
+                >
+                  {range}d
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="metric-definition">
+            Recent activity counts repositories by each repository’s latest push—not commit volume.
+          </p>
           <Suspense fallback={<div className="dashboard-loading" role="status">Loading charts…</div>}>
             <ActivityCharts
               monthly={chartData}
               languages={snapshot.languages}
-              ranges={ranges}
-              rangeDays={rangeDays}
-              onRangeChange={setRangeDays}
             />
           </Suspense>
-        </section>
-
-        <section className="work section-wrap" id="work" aria-labelledby="work-title">
-          <div className="section-heading">
-            <div>
-              <p className="eyebrow">SELECTED WORK</p>
-              <h2 id="work-title">Systems with inspectable decisions.</h2>
-            </div>
-            <p className="section-aside">
-              Portfolio projects and reference implementations. Each card links to code and its README.
-            </p>
-          </div>
-          <div className="filter-row" role="group" aria-label="Filter featured projects">
-            {categories.map((category) => (
-              <button
-                key={category}
-                type="button"
-                className={`filter-chip ${selectedCategory === category ? "is-active" : ""}`}
-                aria-pressed={selectedCategory === category}
-                onClick={() => setSelectedCategory(category)}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-          <div className="project-grid">
-            {visibleProjects.map((project, index) => (
-              <ProjectCard key={project.id} project={project} index={index} />
-            ))}
-          </div>
-          {visibleProjects.length === 0 && (
-            <p className="empty-state">No featured projects match this filter.</p>
-          )}
-        </section>
-
-        <section className="principles section-wrap" aria-labelledby="principles-title">
-          <div className="principles-card">
-            <div className="principles-card__intro">
-              <p className="eyebrow">ENGINEERING APPROACH</p>
-              <h2 id="principles-title">A model can propose.<br /><span>Systems still need proof.</span></h2>
-            </div>
-            <div className="principle-list">
-              <div><span>01</span><p>Keep model output structured and inspectable.</p></div>
-              <div><span>02</span><p>Validate proposals before tool or actuator boundaries.</p></div>
-              <div><span>03</span><p>Use tests, replay, and explicit limitations as evidence.</p></div>
-            </div>
-          </div>
         </section>
 
         <section className="repository-section section-wrap" id="repositories" aria-labelledby="repositories-title">
@@ -445,7 +834,7 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
               <Search aria-hidden="true" size={17} />
               <input
                 type="search"
-                placeholder="Search repositories or topics"
+                placeholder="Search name, description, topic, or language"
                 value={search}
                 onChange={(event) => {
                   setSearch(event.target.value);
@@ -476,13 +865,46 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
               </select>
             </label>
           </div>
+          <div className="repo-results-row">
+            <p className="results-count" role="status" aria-live="polite">
+              Showing {Math.min(visibleCount, filteredRepositories.length)} of {filteredRepositories.length} matching repositories
+            </p>
+            {(search || language !== "All languages" || sortBy !== "recent") && (
+              <button
+                className="clear-filters"
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  setLanguage("All languages");
+                  setSortBy("recent");
+                  setVisibleCount(12);
+                }}
+              >
+                Clear filters
+              </button>
+            )}
+          </div>
           <div className="repo-list">
             {filteredRepositories.slice(0, visibleCount).map((repo) => (
               <RepoRow key={repo.name} repository={repo} />
             ))}
           </div>
           {filteredRepositories.length === 0 && (
-            <p className="empty-state">No public repositories match those filters.</p>
+            <div className="empty-state">
+              <p>No repositories match those filters.</p>
+              <button
+                type="button"
+                className="clear-filters"
+                onClick={() => {
+                  setSearch("");
+                  setLanguage("All languages");
+                  setSortBy("recent");
+                  setVisibleCount(12);
+                }}
+              >
+                Reset search and language
+              </button>
+            </div>
           )}
           {filteredRepositories.length > visibleCount && (
             <button
@@ -490,11 +912,226 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
               type="button"
               onClick={() => setVisibleCount((count) => count + 12)}
             >
-              Show 12 more <ArrowDown aria-hidden="true" size={15} />
+              Show {Math.min(12, filteredRepositories.length - visibleCount)} more <ArrowDown aria-hidden="true" size={15} />
             </button>
           )}
         </section>
+
+        <section className="contact-cta section-wrap" id="contact" aria-labelledby="contact-title">
+          <div>
+            <p className="eyebrow">HIRING OR COLLABORATING?</p>
+            <h2 id="contact-title">Let’s talk about systems that need evidence.</h2>
+            <p>
+              For applied AI, retrieval, inference, or robotics conversations, reach me on LinkedIn.
+            </p>
+          </div>
+          <div className="contact-cta__actions">
+            <a
+              className="button button--primary"
+              href="https://www.linkedin.com/in/a-s-70a471a3/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Connect on LinkedIn <ArrowUpRight aria-hidden="true" size={16} />
+            </a>
+            <a
+              className="button button--quiet"
+              href="https://github.com/AmDeep"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Inspect the code <GitBranch aria-hidden="true" size={15} />
+            </a>
+          </div>
+        </section>
       </main>
+
+      <dialog
+        ref={dialogRef}
+        className="site-dialog"
+        aria-labelledby={dialog?.kind === "palette" ? "palette-title" : "case-study-title"}
+        onClose={() => setDialog(null)}
+        onCancel={(event) => {
+          event.preventDefault();
+          setDialog(null);
+        }}
+        onClick={(event) => {
+          if (event.target === event.currentTarget) setDialog(null);
+        }}
+      >
+        <AnimatePresence mode="wait" initial={false}>
+          {dialog?.kind === "palette" && (
+            <motion.div
+              key="command-palette"
+              className="dialog-panel command-panel"
+              initial={reduced ? false : { opacity: 0, y: 10, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div className="dialog-heading">
+                <div>
+                  <p className="eyebrow">QUICK NAVIGATION</p>
+                  <h2 id="palette-title" data-dialog-title tabIndex={-1}>Find a project or section</h2>
+                </div>
+                <button
+                  className="dialog-close"
+                  type="button"
+                  aria-label="Close navigation search"
+                  onClick={() => setDialog(null)}
+                >
+                  <X aria-hidden="true" size={18} />
+                </button>
+              </div>
+              <label className="command-search">
+                <Search aria-hidden="true" size={17} />
+                <input
+                  data-palette-input
+                  type="search"
+                  role="combobox"
+                  aria-label="Search projects and page sections"
+                  aria-autocomplete="list"
+                  aria-expanded="true"
+                  aria-controls="command-results"
+                  aria-activedescendant={matchedCommands[activeCommand]?.id}
+                  placeholder="Type a project, technology, or section"
+                  value={paletteQuery}
+                  onChange={(event) => setPaletteQuery(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "ArrowDown") {
+                      event.preventDefault();
+                      setActiveCommand((index) =>
+                        Math.min(index + 1, Math.max(0, matchedCommands.length - 1)),
+                      );
+                    } else if (event.key === "ArrowUp") {
+                      event.preventDefault();
+                      setActiveCommand((index) => Math.max(0, index - 1));
+                    } else if (event.key === "Enter" && matchedCommands[activeCommand]) {
+                      event.preventDefault();
+                      chooseCommand(matchedCommands[activeCommand]);
+                    }
+                  }}
+                />
+                <kbd>Esc</kbd>
+              </label>
+              <p className="command-count" role="status" aria-live="polite">
+                {matchedCommands.length} {matchedCommands.length === 1 ? "result" : "results"}
+              </p>
+              <div
+                className="command-results"
+                id="command-results"
+                role="listbox"
+                aria-label="Search results"
+              >
+                {matchedCommands.map((command, index) => (
+                  <div
+                    key={command.id}
+                    id={command.id}
+                    className={`command-option${index === activeCommand ? " is-active" : ""}`}
+                    role="option"
+                    aria-selected={index === activeCommand}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onMouseEnter={() => setActiveCommand(index)}
+                    onClick={() => chooseCommand(command)}
+                  >
+                    <span className="command-option__icon">
+                      {command.kind === "project"
+                        ? <Code2 aria-hidden="true" size={16} />
+                        : <ArrowUpRight aria-hidden="true" size={16} />}
+                    </span>
+                    <span className="command-option__copy">
+                      <strong>{command.title}</strong>
+                      <span>{command.description}</span>
+                    </span>
+                    <ArrowRight aria-hidden="true" size={15} />
+                  </div>
+                ))}
+                {matchedCommands.length === 0 && (
+                  <p className="command-empty">
+                    No matches. Try “robotics”, “retrieval”, or a project name.
+                  </p>
+                )}
+              </div>
+              <div className="command-help">
+                <span><kbd>↑</kbd><kbd>↓</kbd> move</span>
+                <span><kbd>↵</kbd> open</span>
+                <span><kbd>Esc</kbd> close</span>
+              </div>
+            </motion.div>
+          )}
+          {selectedProject && selectedCase && (
+            <motion.div
+              key={`case-${selectedProject.id}`}
+              className="dialog-panel case-study-panel"
+              initial={reduced ? false : { opacity: 0, y: 10, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div className="dialog-heading">
+                <div>
+                  <p className="eyebrow">{selectedProject.category} · CASE STUDY</p>
+                  <h2 id="case-study-title" data-dialog-title tabIndex={-1}>{selectedProject.name}</h2>
+                </div>
+                <button
+                  className="dialog-close"
+                  type="button"
+                  aria-label={`Close ${selectedProject.name} case study`}
+                  onClick={() => setDialog(null)}
+                >
+                  <X aria-hidden="true" size={18} />
+                </button>
+              </div>
+              <div className="case-study-summary">
+                <ProjectArtwork project={selectedProject} />
+                <div>
+                  <span className="case-study-scope">{selectedProject.scope}</span>
+                  <p>{selectedCase.challenge}</p>
+                </div>
+              </div>
+              <div className="case-study-grid">
+                <section aria-labelledby="case-design-title">
+                  <p className="eyebrow">SYSTEM DESIGN</p>
+                  <h3 id="case-design-title">What the repository implements</h3>
+                  <ul>
+                    {selectedCase.design.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </section>
+                <section aria-labelledby="case-evidence-title">
+                  <p className="eyebrow">REVIEWABLE PROOF</p>
+                  <h3 id="case-evidence-title">What to inspect</h3>
+                  <ul>
+                    {selectedCase.evidence.map((item) => <li key={item}>{item}</li>)}
+                  </ul>
+                </section>
+                <section className="case-study-boundary" aria-labelledby="case-boundary-title">
+                  <p className="eyebrow">SCOPE BOUNDARY</p>
+                  <h3 id="case-boundary-title">What this does not claim</h3>
+                  <p>{selectedCase.boundary}</p>
+                </section>
+              </div>
+              <div className="case-study-footer">
+                <div className="case-study-links">
+                  {selectedCase.links.map((link) => (
+                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer">
+                      {link.label}<ArrowUpRight aria-hidden="true" size={14} />
+                    </a>
+                  ))}
+                </div>
+                <button
+                  className="copy-link"
+                  type="button"
+                  aria-label={`Copy link to ${selectedProject.name} case study`}
+                  onClick={() => void copyProjectLink(selectedProject)}
+                >
+                  <Copy aria-hidden="true" size={14} /> Copy link
+                </button>
+              </div>
+              <p className="copy-feedback" role="status" aria-live="polite">{copyFeedback}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </dialog>
 
       <footer className="site-footer section-wrap">
         <div>
@@ -506,11 +1143,17 @@ export default function App({ dataset = data }: { dataset?: PortfolioData }) {
         </div>
         <div className="site-footer__meta">
           <span>Data source: GitHub public repository metadata</span>
-          <a href="https://github.com/AmDeep" target="_blank" rel="noreferrer">
-            View GitHub <ArrowUpRight aria-hidden="true" size={14} />
-          </a>
+          <div className="site-footer__links">
+            <a href="https://www.linkedin.com/in/a-s-70a471a3/" target="_blank" rel="noreferrer">
+              LinkedIn <ArrowUpRight aria-hidden="true" size={14} />
+            </a>
+            <a href="https://github.com/AmDeep" target="_blank" rel="noreferrer">
+              GitHub <ArrowUpRight aria-hidden="true" size={14} />
+            </a>
+          </div>
         </div>
       </footer>
     </div>
+    </MotionConfig>
   );
 }

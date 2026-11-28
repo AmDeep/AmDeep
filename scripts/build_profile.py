@@ -79,17 +79,9 @@ def svg_shell(title: str, description: str, body: str, width: int, height: int) 
   <style>
     .sans{{font-family:Inter,'Segoe UI',Arial,sans-serif}}
     .mono{{font-family:'SFMono-Regular',Consolas,monospace}}
-    @media (prefers-reduced-motion: no-preference) {{
-      .signal{{animation:signal-travel 5s ease-in-out infinite}}
-      .pulse{{animation:pulse 3.2s ease-in-out infinite}}
-      .card-accent{{animation:accent-shift 8s ease-in-out infinite}}
-    }}
-    @media (prefers-reduced-motion: reduce) {{
-      .signal,.pulse,.card-accent{{animation:none!important}}
-    }}
-    @keyframes signal-travel{{0%,100%{{transform:translateX(0);opacity:.45}}50%{{transform:translateX(350px);opacity:1}}}}
-    @keyframes pulse{{0%,100%{{opacity:.55}}50%{{opacity:1}}}}
-    @keyframes accent-shift{{0%,100%{{opacity:.72}}50%{{opacity:1}}}}
+    .signal{{opacity:.85}}
+    .pulse{{opacity:.82}}
+    .card-accent{{opacity:.9}}
   </style>
   {body}
 </svg>
@@ -129,8 +121,8 @@ def render_hero(content: dict[str, Any]) -> str:
     <text x="1054" y="158" font-size="14" fill="{TEXT}">bounded action</text>
   </g>
   <circle class="pulse" cx="770" cy="202" r="4" fill="{ACCENT}"/>
-  <circle class="pulse" cx="912" cy="202" r="4" fill="#82A8FF" style="animation-delay:.7s"/>
-  <circle class="pulse" cx="1054" cy="202" r="4" fill="#FFB86B" style="animation-delay:1.4s"/>
+  <circle class="pulse" cx="912" cy="202" r="4" fill="#82A8FF"/>
+  <circle class="pulse" cx="1054" cy="202" r="4" fill="#FFB86B"/>
   <text x="912" y="248" class="mono" font-size="12" text-anchor="middle" fill="{MUTED}">A recurring pattern in the selected projects</text>
 """
     return svg_shell(
@@ -153,7 +145,7 @@ def render_evidence(content: dict[str, Any]) -> str:
             f"""
   <g>
     <rect x="{x}" y="64" width="{card_width}" height="152" rx="18" fill="{PANEL}" stroke="{GRID}"/>
-    <rect class="card-accent" x="{x}" y="64" width="5" height="152" rx="3" fill="{ACCENT}" style="animation-delay:{index * 0.8}s"/>
+    <rect class="card-accent" x="{x}" y="64" width="5" height="152" rx="3" fill="{ACCENT}"/>
     <text x="{x + 24}" y="104" class="mono" font-size="12" fill="{MUTED}" letter-spacing="1">{esc(metric['label'])}</text>
     <text x="{x + 24}" y="166" class="sans" font-size="48" font-weight="750" fill="{TEXT}">{esc(metric['value'])}</text>
     <text x="{x + 24}" y="194" class="sans" font-size="14" fill="{MUTED}">{esc(metric['note'])}</text>

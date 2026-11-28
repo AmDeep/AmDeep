@@ -6,7 +6,7 @@ I build AI systems that are easier to inspect, test, and trust—from retrieval 
 
 **Toronto, Canada · Retrieval · agent systems · inference · robotics**
 
-<a href="https://github.com/AmDeep">GitHub</a> · <a href="https://www.omdena.com/">Omdena</a>
+<a href="https://github.com/AmDeep">GitHub</a> · <a href="https://www.linkedin.com/in/a-s-70a471a3/">LinkedIn</a> · <a href="https://www.omdena.com/">Omdena</a>
 
 ## Selected work
 
