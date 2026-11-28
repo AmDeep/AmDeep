@@ -86,11 +86,12 @@ class ProfileBuilderTests(unittest.TestCase):
                 self.assertIn(project["url"], readme)
                 self.assertIn(f"profile/project-{project['id']}.svg", self.outputs)
 
-    def test_reduced_motion_is_supported_in_every_svg(self) -> None:
+    def test_long_running_svg_motion_is_disabled_or_respects_reduced_motion(self) -> None:
         for name, text in self.outputs.items():
             if name.endswith(".svg"):
                 with self.subTest(asset=name):
-                    self.assertIn("prefers-reduced-motion: reduce", text)
+                    if "animation:" in text or "@keyframes" in text:
+                        self.assertIn("prefers-reduced-motion: reduce", text)
 
     def test_text_escaping_prevents_malformed_svg(self) -> None:
         self.assertEqual(esc("R&D <AI>"), "R&amp;D &lt;AI&gt;")

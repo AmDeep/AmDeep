@@ -13,8 +13,6 @@ import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { MetricLanguage, MonthlyPush } from "./types";
 
-type RangeDays = 7 | 30 | 90;
-
 function ChartTooltip({
   active,
   payload,
@@ -59,15 +57,9 @@ function ChartPanel({
 export default function ActivityCharts({
   monthly,
   languages,
-  ranges,
-  rangeDays,
-  onRangeChange,
 }: {
   monthly: MonthlyPush[];
   languages: MetricLanguage[];
-  ranges: readonly RangeDays[];
-  rangeDays: RangeDays;
-  onRangeChange: (range: RangeDays) => void;
 }) {
   return (
     <div className="dashboard-grid">
@@ -77,18 +69,6 @@ export default function ActivityCharts({
             <p className="eyebrow">PUSH RECENCY</p>
             <h3>Repositories by latest push month</h3>
             <p className="panel-subtitle">One point per repository—not commit volume.</p>
-          </div>
-          <div className="segmented-control" role="group" aria-label="Recent-push metric window">
-            {ranges.map((range) => (
-              <button
-                key={range}
-                type="button"
-                aria-pressed={rangeDays === range}
-                onClick={() => onRangeChange(range)}
-              >
-                {range}d
-              </button>
-            ))}
           </div>
         </div>
         <div

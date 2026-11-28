@@ -4,17 +4,9 @@
   <style>
     .sans{font-family:Inter,'Segoe UI',Arial,sans-serif}
     .mono{font-family:'SFMono-Regular',Consolas,monospace}
-    @media (prefers-reduced-motion: no-preference) {
-      .signal{animation:signal-travel 5s ease-in-out infinite}
-      .pulse{animation:pulse 3.2s ease-in-out infinite}
-      .card-accent{animation:accent-shift 8s ease-in-out infinite}
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .signal,.pulse,.card-accent{animation:none!important}
-    }
-    @keyframes signal-travel{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(350px);opacity:1}}
-    @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
-    @keyframes accent-shift{0%,100%{opacity:.72}50%{opacity:1}}
+    .signal{opacity:.85}
+    .pulse{opacity:.82}
+    .card-accent{opacity:.9}
   </style>
   
   <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#55D6BE" stroke-width="1.5"/></marker></defs>

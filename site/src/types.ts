@@ -32,6 +32,7 @@ export interface PortfolioProject {
   summary: string;
   evidence: string;
   featured: boolean;
+  color: string;
   language: string | null;
   stars: number;
   forks: number;

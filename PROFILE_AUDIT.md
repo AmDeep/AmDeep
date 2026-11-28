@@ -12,16 +12,17 @@ The public `AmDeep/AmDeep` repository, its profile README, generated SVGs, Pytho
 4. **The visible stats path and the updating workflow disagreed.** The only active workflow was `.github/workflows/auto-update-metrics.yml`; it generated `assets/metrics.svg`. The README did not embed that file and instead used third-party stats, streak, activity-graph, profile-view, typing, and icon services. The activity-graph endpoint returned “This deployment is temporarily paused” during this audit.
 5. **The generator and test files were duplicated.** Root-level and `scripts/` copies of `build_profile.py`, `render_metrics.py`, and the metrics tests were byte-for-byte identical. The existing test suite passed three tests, but none exercised the main profile generator or checked that every README image existed.
 6. **The profile spent space on unreliable/low-signal widgets.** It repeated broad tool lists and multiple charts, while the most verifiable evidence was in six project repositories. The revised README leads with the projects and the engineering decisions those repositories demonstrate.
-7. **Public contact details are incomplete.** The public account metadata had no bio or website URL, and the repository contained no verified LinkedIn or email link. The replacement therefore does not invent contact information. A suggested short account bio is included below for manual use if desired.
+7. **The public profile lacked a direct hiring contact.** The GitHub account metadata had no bio or website URL. AmDeep supplied a LinkedIn profile URL, which is now included in the generated README, dashboard, and structured profile metadata. No email address was inferred or added.
 
 ## What the replacement changes
 
 - Rebuilds the profile as a short, proof-led review path: a clear role, six evidence-based project cards, engineering approach, current repository signals, and links to the source.
 - Removes the unsupported contribution-count graphic, inactive snake reference, and third-party widgets rather than displaying stale, zero, or externally hosted results.
-- Adds self-hosted SVGs with accessible titles/descriptions and reduced-motion fallbacks. The checked-in SVGs render immediately; the metrics SVG is regenerated from GitHub public repository metadata.
-- Adds a separate responsive dashboard with animated project cards, search and filters, repository sorting, a recent-push selector, language mix, and a 12-month chart. Chart code is lazy-loaded and split from the first page bundle.
+- Adds self-hosted SVGs with accessible titles/descriptions. GitHub README SVGs are static; the interactive dashboard has reduced-motion support, a page-wide pause control, responsive project artwork, and a scroll progress indicator.
+- Adds a separate responsive dashboard with evidence-led project case studies, keyboard command search, interactive system stages, mobile navigation, repository sorting and recovery states, a recent-push selector, language mix, and a 12-month chart. Chart code is lazy-loaded and split from the first page bundle.
+- Adds server-rendered profile content, canonical/social metadata, a share card, `robots.txt`, a sitemap, and a `Person` JSON-LD record.
 - Keeps portfolio claims scoped to documented repository contents. The 12/15/12 figures are counts of documented labs/projects/stages, not deployment, usage, or business-impact metrics.
-- Adds Python data/SVG tests and React interaction tests, plus CI validation for the generated README, dashboard, and production build.
+- Adds Python data/SVG tests and expanded React interaction tests, plus CI validation for the generated README, dashboard, static-rendered content, and production build.
 
 ## Live-data behavior and limits
 
@@ -39,7 +40,7 @@ The public `AmDeep/AmDeep` repository, its profile README, generated SVGs, Pytho
 
 The dashboard is a static client-side app; it does not run JavaScript inside the GitHub profile README itself. It uses React 19.3.0, TypeScript 7.0.2, Vite 8.4.0, Recharts 3.11.1 for data visuals, Motion 14.14.0 for restrained transitions, and Lucide React 1.81.0 for interface icons. Vitest 5.1.0 and Testing Library cover core interactions. Versions are locked in `site/package-lock.json`.
 
-The layout is original, not copied from another developer. It follows broadly useful portfolio patterns—specific positioning, selected work before an exhaustive project list, and direct evidence links—while using a different visual system. Motion respects `prefers-reduced-motion`; charts are code-split so they do not inflate the initial JavaScript chunk.
+The layout is original, not copied from another developer. It applies broad portfolio guidance—clear positioning, a curated set of projects, direct evidence links, and accessible motion—while using a distinct visual system. Motion respects `prefers-reduced-motion`, and the page-level pause control also stops looping project artwork; charts remain code-split from the main bundle.
 
 ## Evidence used for project descriptions
 
@@ -70,4 +71,9 @@ This is a suggestion only; changing the account bio is a separate profile-settin
 - GitHub Docs, custom workflows for GitHub Pages: https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages
 - Brittany Chiang’s portfolio, used as a hierarchy/clarity reference (not a visual template): https://brittanychiang.com/
 - GreatFrontEnd portfolio guidance: https://www.greatfrontend.com/blog/frontend-developer-github-profile
+- Josh Comeau, “Building an Effective Dev Portfolio”: https://www.joshwcomeau.com/effective-portfolio
+- Motion for React accessibility guidance: https://motion.dev/docs/react-accessibility
+- W3C WCAG 2.2 SC 2.2.2, Pause, Stop, Hide: https://www.w3.org/WAI/WCAG22/Understanding/pause-stop-hide.html
+- React static prerendering and hydration: https://react.dev/reference/react-dom/static/prerender
+- Playwright accessibility testing (automated checks do not replace manual review): https://playwright.dev/docs/accessibility-testing
 - React documentation, versions: https://react.dev/versions

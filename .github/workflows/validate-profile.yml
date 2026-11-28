@@ -57,3 +57,6 @@ jobs:
       - name: Type-check and build dashboard
         working-directory: site
         run: npm run build
+      - name: Verify prerendered metadata and assets
+        working-directory: site
+        run: npm run check:site
